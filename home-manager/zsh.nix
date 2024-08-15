@@ -11,7 +11,9 @@
       l = "LC_COLLATE=C ls -la --color=auto --group-directories-first --block-size=M";
       update = "sudo nixos-rebuild switch --flake .#pxndxs";
       updatehome = "home-manager switch --flake .#pxndxs@pxndxs";
-      nixconf = "cd ~/Documents/nix-config";
+      confnix = "cd ~/Documents/nix-config";
+      confvim = "cd ~/.config/nvim";
+      confhyp = "cd ~/.config/hypr";
       v = "nvim";
     };
 

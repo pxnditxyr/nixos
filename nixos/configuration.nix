@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   imports =
@@ -47,15 +47,24 @@
   services.xserver.enable = true;
 
   # Enable the Pantheon Desktop Environment.
-  services.xserver.displayManager.lightdm.enable = true;
+  # services.xserver.displayManager.lightdm.enable = true;
+  services.displayManager.sddm.enable = true;
+
   services.xserver.desktopManager.pantheon.enable = true;
+  services.xserver.windowManager.qtile.enable = true;
 
   # Configure keymap in X11
   services.xserver = {
-    layout = "us";
-    xkbVariant = "dvorak";
+    xkb.layout = "us";
+    xkb.variant = "dvorak";
+    videoDrivers = [ "nvidia" ];
     autoRepeatDelay = 200;
     autoRepeatInterval = 40;
+  };
+
+  hardware = {
+    graphics.enable = true;
+    nvidia.modesetting.enable = true;
   };
 
   # Configure console keymap
@@ -72,6 +81,7 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    jack.enable = true;
     # If you want to use JACK applications, uncomment this
     #jack.enable = true;
 
@@ -97,6 +107,7 @@
   # Install firefox.
   programs.firefox.enable = true;
   programs.zsh.enable = true;
+  programs.hyprland.enable = true;
 
 
   # Allow unfree packages
@@ -107,21 +118,53 @@
   environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
-    neovim
     curl
+    # browser
     brave
+
+    # compression tools
     zip
     unzip
     unrar
+
     xclip
     gnumake42
-    clang_multi
     nodejs_22
     bun
+
+    # neovim
+    clang_multi
+    neovim
     ripgrep
     jq
     flameshot
+    anydesk
+
+    # hyprland
+    wofi
+    networkmanagerapplet
+    waybar
+    eww
+    dunst
+    swww
+    libnotify
+    ( waybar.overrideAttrs ( oldAttrs: {
+        mesonFlags = oldAttrs.mesonFlags ++ [ "-Dexperimental=true" ];
+      } )
+    )
   ];
+
+  # Enable the XDG portal service. hyprland
+  xdg.portal.enable = true;
+  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+
+
+  # environment.sessionVariables = {
+  #   NIXOS_OZONE_WL = "1";
+  # };
+
+
+
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.

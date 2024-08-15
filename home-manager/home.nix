@@ -18,6 +18,7 @@
     ./kitty.nix
     ./git.nix
     ./zsh.nix
+    ./hyprland.nix
   ];
 
   nixpkgs = {
