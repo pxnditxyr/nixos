@@ -107,7 +107,10 @@
   # Install firefox.
   programs.firefox.enable = true;
   programs.zsh.enable = true;
-  programs.hyprland.enable = true;
+  programs.hyprland = {
+    enable = true;
+    # xwayland.enable = true;
+  };
 
 
   # Allow unfree packages
@@ -159,6 +162,8 @@
     grim
     swappy
     slurp
+
+    lxqt.lxqt-openssh-askpass
   ];
 
   # Enable the XDG portal service. hyprland
@@ -172,6 +177,9 @@
 
   # environment.variables.EDITOR = "nvim";
 
+  programs.ssh.askPassword = "lxqt-openssh-askpass";
+
+
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
@@ -183,7 +191,7 @@
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
+  # services.openssh.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
