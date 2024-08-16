@@ -152,6 +152,13 @@
         mesonFlags = oldAttrs.mesonFlags ++ [ "-Dexperimental=true" ];
       } )
     )
+    # wayland
+    wl-clipboard
+
+    # Screen shots
+    grim
+    swappy
+    slurp
   ];
 
   # Enable the XDG portal service. hyprland
@@ -163,8 +170,7 @@
   #   NIXOS_OZONE_WL = "1";
   # };
 
-
-
+  # environment.variables.EDITOR = "nvim";
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.

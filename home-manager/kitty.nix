@@ -8,7 +8,7 @@
     };
     theme = "Tokyo Night";
     extraConfig = ''
-      background_opacity 0.85
+      background_opacity 0.75
       cursor_shape block
       enable_audio_bell no
       close_on_child_death yes
