@@ -97,7 +97,7 @@
   users.users.pxndxs = {
     isNormalUser = true;
     description = "Pxndxs";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" ];
     shell = pkgs.zsh;
     packages = with pkgs; [
     #  thunderbird
@@ -119,9 +119,9 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
     curl
+
     # browser
     brave
 
@@ -130,23 +130,23 @@
     unzip
     unrar
 
+    # clipboards
     xclip
+    wl-clipboard
+
     gnumake42
+    gcc
+
+    # Javascript
     nodejs_22
     bun
 
-    # neovim
-    clang_multi
-    neovim
-    ripgrep
-    jq
+    # screen shot for x11
     flameshot
-    anydesk
 
     # hyprland
     wofi
     networkmanagerapplet
-    waybar
     eww
     dunst
     swww
@@ -155,15 +155,17 @@
         mesonFlags = oldAttrs.mesonFlags ++ [ "-Dexperimental=true" ];
       } )
     )
-    # wayland
-    wl-clipboard
 
-    # Screen shots
+    # Screen shots wayland
     grim
     swappy
     slurp
 
+    # SSH Askpass
     lxqt.lxqt-openssh-askpass
+
+    # Utils
+    anydesk
   ];
 
   # Enable the XDG portal service. hyprland
@@ -171,13 +173,16 @@
   xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
 
 
-  # environment.sessionVariables = {
-  #   NIXOS_OZONE_WL = "1";
+  # environment = {
+  #   variables = {
+  #     PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
+  #   };
   # };
 
-  # environment.variables.EDITOR = "nvim";
-
   programs.ssh.askPassword = "lxqt-openssh-askpass";
+
+  # Docker
+  virtualisation.docker.enable = true;
 
 
   # Some programs need SUID wrappers, can be configured further or are

@@ -14,12 +14,17 @@
 
     # You can also split up your configuration and import pieces of it here:
     # ./nvim.nix
-    ./fonts.nix
-    ./kitty.nix
-    ./git.nix
-    ./zsh.nix
-    ./hyprland.nix
     ./chromium.nix
+    ./direnv.nix
+    ./fonts.nix
+    ./git.nix
+    ./hyprland.nix
+    ./jq.nix
+    ./kitty.nix
+    ./neovix.nix
+    ./obs.nix
+    ./waybar.nix
+    ./zsh.nix
   ];
 
   nixpkgs = {
@@ -53,9 +58,9 @@
   # Add stuff for your user as you see fit:
   # programs.neovim.enable = true;
   home.packages = with pkgs; [
-     (writeScriptBin "57" ''
-       echo -n "6" | xclip -selection clipboard
-     '')
+     # (writeScriptBin "57" ''
+     #   echo -n "6" | xclip -selection clipboard
+     # '')
   ];
 
   # Enable home-manager and git

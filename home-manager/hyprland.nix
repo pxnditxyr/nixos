@@ -1,4 +1,3 @@
-{config, pkgs, ... }:
 {
   wayland.windowManager.hyprland.settings = {
     decoration = {
@@ -15,5 +14,4 @@
       "$mod ALT, mouse:272, resizewindow"
     ];
   };
-  # ...
 }

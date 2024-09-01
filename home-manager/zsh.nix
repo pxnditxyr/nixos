@@ -14,12 +14,61 @@
       confnix = "cd ~/Documents/nix-config";
       confvim = "cd ~/.config/nvim";
       confhyp = "cd ~/.config/hypr";
+      "57" = ''
+        if [[ $WAYLAND_DISPLAY ]]; then
+          echo -n "6" | wl-copy
+        else
+          echo -n "6" | xclip -selection clipboard
+        fi
+      '';
+      nn = ''
+        if [[ $WAYLAND_DISPLAY ]]; then
+          echo -n "ñ" | wl-copy
+        else
+          echo -n "ñ" | xclip -selection clipboard
+        fi
+      '';
+      aa = ''
+        if [[ $WAYLAND_DISPLAY ]]; then
+          echo -n "á" | wl-copy
+        else
+          echo -n "á" | xclip -selection clipboard
+        fi
+      '';
+      ee = ''
+        if [[ $WAYLAND_DISPLAY ]]; then
+          echo -n "é" | wl-copy
+        else
+          echo -n "é" | xclip -selection clipboard
+        fi
+      '';
+      ii = ''
+        if [[ $WAYLAND_DISPLAY ]]; then
+          echo -n "í" | wl-copy
+        else
+          echo -n "í" | xclip -selection clipboard
+        fi
+      '';
+      oo = ''
+        if [[ $WAYLAND_DISPLAY ]]; then
+          echo -n "ó" | wl-copy
+        else
+          echo -n "ó" | xclip -selection clipboard
+        fi
+      '';
+      uu = ''
+        if [[ $WAYLAND_DISPLAY ]]; then
+          echo -n "ú" | wl-copy
+        else
+          echo -n "ú" | xclip -selection clipboard
+        fi
+      '';
       v = "nvim";
     };
 
     history = {
       size = 10000;
-      path = "${config.xdg.dataHome}/zsh/history";
+      path = "${ config.xdg.dataHome }/zsh/history";
     };
     initExtra = ''
     # colors

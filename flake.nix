@@ -6,8 +6,10 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
     # Home manager
-    home-manager.url = "github:nix-community/home-manager/";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # Hyprland
     hyprland.url = "git+https://github.com/hyprwm/Hyprland?submodules=1";
@@ -16,6 +18,8 @@
       inputs.hyprland.follows = "hyprland";
     };
 
+    # NeoVix Pxndxs 🐼 my neovim configuration
+    neovix.url = "github:pxnditxyr/neovix";
   };
 
   outputs = {
