@@ -3,7 +3,7 @@
     enable = true;
     shellIntegration.enableZshIntegration = true;
     font = {
-      name = "CaskaydiaCove Nerd Font Mono";
+      name = "CaskaydiaCove Nerd Font";
       size = 14;
     };
     theme = "Tokyo Night";

@@ -6,6 +6,13 @@
     enableCompletion = true;
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
+    oh-my-zsh = {
+      enable = true;
+      plugins = [
+        "git"
+        "docker"
+      ];
+    };
 
     shellAliases = {
       l = "LC_COLLATE=C ls -la --color=auto --group-directories-first --block-size=M";
@@ -76,19 +83,63 @@
     FIRST_PAW_COLOR='#85EF47';
     SECOND_PAW_COLOR='#FF5722';
     DIR_COLOR='#EA047E';
-    GIT_COLOR='#FFED00';
 
-    # functions for git branch
     function git_branch_name () {
+      color_git="#FFED00";
+      icon_git=""
       branch=$(git symbolic-ref HEAD 2> /dev/null | awk 'BEGIN{FS="/"} {print $NF}')
+      local output=""
       if [[ $branch == "" ]]; then
-        :
+        output=""
       else
-        echo '\uE0A0(' $branch ') '
+        output="%F{$color_git}$icon_git ($branch) %f"
       fi
+      echo $output
     }
 
-    prompt="%F{$NAME_COLOR}%n %F{$FIRST_PAW_COLOR}  %F{$DIR_COLOR}%c %F{$GIT_COLOR}\ $(git_branch_name) %F{$SECOND_PAW_COLOR}  %f";
+    function git_status_summary_xd () {
+      # Define icons
+      icon_add="󱝹"
+      icon_change=""
+      icon_delete="󱂧"
+      icon_push="󱖉"
+      icon_untracked="󱛑"
+
+      # Define colors
+      color_add="#9CFF2E"
+      color_change="#9CDBA6"
+      color_delete="#ef4444"
+      color_push="#0D7C66"
+      color_untracked="#E5B273"
+
+      # Get git status counts
+      local git_status=$(git status --porcelain=v1 2>/dev/null)
+      local added=$(echo "$git_status" | grep '^A' | wc -l)
+      local changed=$(echo "$git_status" | grep '^M' | wc -l)
+      local deleted=$(echo "$git_status" | grep '^D' | wc -l)
+      local unpushed=$(git log --branches --not --remotes 2>/dev/null | grep '^commit' | wc -l)
+      local untracked=$(echo "$git_status" | grep '^?' | wc -l)
+
+      local output=""
+
+      [[ $added -gt 0 ]] && output+="%F{$color_add}$icon_add $added %f"
+      [[ $changed -gt 0 ]] && output+="%F{$color_change}$icon_change $changed %f"
+      [[ $deleted -gt 0 ]] && output+="%F{$color_delete}$icon_delete $deleted %f"
+      [[ $unpushed -gt 0 ]] && output+="%F{$color_push}$icon_push $unpushed %f"
+      [[ $untracked -gt 0 ]] && output+="%F{$color_untracked}$icon_untracked $untracked %f"
+
+      [[ -z $output ]] && output=" "
+
+      echo $output
+    }
+
+    PROMPT="🐼 "
+    PROMPT+="%F{$NAME_COLOR}%n ";
+    PROMPT+="%F{$FIRST_PAW_COLOR}  ";
+    PROMPT+="%F{$DIR_COLOR}%~ ";
+    PROMPT+='$(git_branch_name)$(git_status_summary_xd)';
+    PROMPT+="%F{$SECOND_PAW_COLOR}  %f";
+
     # setting for take in account / like a word separator in delete word
     WORDCHARS="";
     '';

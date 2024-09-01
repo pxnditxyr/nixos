@@ -166,6 +166,9 @@
 
     # Utils
     anydesk
+
+    # Terminal file manager
+    yazi
   ];
 
   # Enable the XDG portal service. hyprland
