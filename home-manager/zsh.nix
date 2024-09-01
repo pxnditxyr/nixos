@@ -86,13 +86,13 @@
 
     function git_branch_name () {
       color_git="#FFED00";
-      icon_git=""
+      icon_git=" "
       branch=$(git symbolic-ref HEAD 2> /dev/null | awk 'BEGIN{FS="/"} {print $NF}')
       local output=""
       if [[ $branch == "" ]]; then
         output=""
       else
-        output="%F{$color_git}$icon_git ($branch) %f"
+        output="%F{$color_git}$icon_git($branch) %f"
       fi
       echo $output
     }
@@ -115,7 +115,7 @@
       # Get git status counts
       local git_status=$(git status --porcelain=v1 2>/dev/null)
       local added=$(echo "$git_status" | grep '^A' | wc -l)
-      local changed=$(echo "$git_status" | grep '^M' | wc -l)
+      local changed=$(echo "$git_status" | grep '^ M' | wc -l)
       local deleted=$(echo "$git_status" | grep '^D' | wc -l)
       local unpushed=$(git log --branches --not --remotes 2>/dev/null | grep '^commit' | wc -l)
       local untracked=$(echo "$git_status" | grep '^?' | wc -l)
@@ -128,7 +128,7 @@
       [[ $unpushed -gt 0 ]] && output+="%F{$color_push}$icon_push $unpushed %f"
       [[ $untracked -gt 0 ]] && output+="%F{$color_untracked}$icon_untracked $untracked %f"
 
-      [[ -z $output ]] && output=" "
+      # [[ -z $output ]] && output=""
 
       echo $output
     }
