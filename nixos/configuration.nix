@@ -51,7 +51,6 @@
   services.displayManager.sddm.enable = true;
 
   services.xserver.desktopManager.pantheon.enable = true;
-  services.xserver.windowManager.qtile.enable = true;
 
   # Configure keymap in X11
   services.xserver = {
@@ -64,7 +63,11 @@
 
   hardware = {
     graphics.enable = true;
-    nvidia.modesetting.enable = true;
+    nvidia = {
+      open = false;
+      modesetting.enable = true;
+      nvidiaSettings = true;
+    };
   };
 
   # Configure console keymap
@@ -109,7 +112,7 @@
   programs.zsh.enable = true;
   programs.hyprland = {
     enable = true;
-    # xwayland.enable = true;
+    xwayland.enable = true;
   };
 
 
@@ -135,6 +138,7 @@
     wl-clipboard
 
     gnumake42
+    clang_multi
     gcc
 
     # Javascript
@@ -169,6 +173,9 @@
 
     # Terminal file manager
     yazi
+
+    # Dbeaver
+    dbeaver-bin
   ];
 
   # Enable the XDG portal service. hyprland
