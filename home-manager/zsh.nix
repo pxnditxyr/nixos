@@ -22,49 +22,49 @@
       confvim = "cd ~/.config/nvim";
       confhyp = "cd ~/.config/hypr";
       "57" = ''
-        if [[ $WAYLAND_DISPLAY ]]; then
+        if [[ $WAYLAND_DISPLAY && $WAYLAND_DISPLAY != "wayland-0" ]]; then
           echo -n "6" | wl-copy
         else
           echo -n "6" | xclip -selection clipboard
         fi
       '';
       nn = ''
-        if [[ $WAYLAND_DISPLAY ]]; then
+        if [[ $WAYLAND_DISPLAY && $WAYLAND_DISPLAY != "wayland-0" ]]; then
           echo -n "ñ" | wl-copy
         else
           echo -n "ñ" | xclip -selection clipboard
         fi
       '';
       aa = ''
-        if [[ $WAYLAND_DISPLAY ]]; then
+        if [[ $WAYLAND_DISPLAY && $WAYLAND_DISPLAY != "wayland-0" ]]; then
           echo -n "á" | wl-copy
         else
           echo -n "á" | xclip -selection clipboard
         fi
       '';
       ee = ''
-        if [[ $WAYLAND_DISPLAY ]]; then
+        if [[ $WAYLAND_DISPLAY && $WAYLAND_DISPLAY != "wayland-0" ]]; then
           echo -n "é" | wl-copy
         else
           echo -n "é" | xclip -selection clipboard
         fi
       '';
       ii = ''
-        if [[ $WAYLAND_DISPLAY ]]; then
+        if [[ $WAYLAND_DISPLAY && $WAYLAND_DISPLAY != "wayland-0" ]]; then
           echo -n "í" | wl-copy
         else
           echo -n "í" | xclip -selection clipboard
         fi
       '';
       oo = ''
-        if [[ $WAYLAND_DISPLAY ]]; then
+        if [[ $WAYLAND_DISPLAY && $WAYLAND_DISPLAY != "wayland-0" ]]; then
           echo -n "ó" | wl-copy
         else
           echo -n "ó" | xclip -selection clipboard
         fi
       '';
       uu = ''
-        if [[ $WAYLAND_DISPLAY ]]; then
+        if [[ $WAYLAND_DISPLAY && $WAYLAND_DISPLAY != "wayland-0" ]]; then
           echo -n "ú" | wl-copy
         else
           echo -n "ú" | xclip -selection clipboard
