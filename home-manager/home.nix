@@ -49,7 +49,6 @@
     };
   };
 
-  # TODO: Set your username
   home = {
     username = "pxndxs";
     homeDirectory = "/home/pxndxs";
@@ -58,9 +57,21 @@
   # Add stuff for your user as you see fit:
   # programs.neovim.enable = true;
   home.packages = with pkgs; [
-     # (writeScriptBin "57" ''
-     #   echo -n "6" | xclip -selection clipboard
-     # '')
+    # (writeScriptBin "57" ''
+    #   echo -n "6" | xclip -selection clipboard
+    # '')
+    wget
+    curl
+    zip
+    unzip
+    unrar
+    xclip
+    wl-clipboard
+    clang_multi
+    gnumake42
+    nodejs_22
+    bun
+    yazi
   ];
 
   # Enable home-manager and git

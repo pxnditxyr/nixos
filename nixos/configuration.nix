@@ -125,9 +125,6 @@
     wget
     curl
 
-    # browser
-    brave
-
     # compression tools
     zip
     unzip
@@ -144,6 +141,12 @@
     # Javascript
     nodejs_22
     bun
+
+    # Terminal file manager
+    yazi
+
+    # browser
+    brave
 
     # screen shot for x11
     flameshot
@@ -170,9 +173,6 @@
 
     # Utils
     anydesk
-
-    # Terminal file manager
-    yazi
 
     # Dbeaver
     dbeaver-bin
