@@ -66,7 +66,6 @@
     unzip
     unrar
     xclip
-    wl-clipboard
     clang_multi
     gnumake42
     nodejs_22
