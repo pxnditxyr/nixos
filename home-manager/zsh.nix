@@ -18,8 +18,8 @@
       l = "LC_COLLATE=C ls -la --color=auto --group-directories-first --block-size=M";
       update = "sudo nixos-rebuild switch --flake .#pxndxs";
       updatehome = "home-manager switch --flake .#pxndxs@pxndxs";
-      confnix = "cd ~/Documents/nix-config";
-      confvim = "cd ~/.config/nvim";
+      confnix = "cd ~/.config/nixos";
+      confvim = "cd ~/workspace/neovix";
       confhyp = "cd ~/.config/hypr";
       "57" = ''
         if [[ $WAYLAND_DISPLAY && $WAYLAND_DISPLAY != "wayland-0" ]]; then
