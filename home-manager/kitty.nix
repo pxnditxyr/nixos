@@ -6,7 +6,7 @@
       name = "CaskaydiaCove Nerd Font";
       size = 14;
     };
-    theme = "Tokyo Night";
+    themeFile = "tokyo_night_storm";
     extraConfig = ''
       background_opacity 0.75
       cursor_shape block
