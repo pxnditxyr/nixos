@@ -62,11 +62,19 @@
   };
 
   hardware = {
-    graphics.enable = true;
+    graphics = {
+      enable = true;
+      enable32Bit = true;
+    };
     nvidia = {
       open = false;
       modesetting.enable = true;
       nvidiaSettings = true;
+      # prime = {
+      #   sync.enable = true;
+      #   amdgpuBusId = "PCI:4:0:0";
+      #   nvidiaBusId = "PCI:1:0:0";
+      # };
     };
   };
 
@@ -176,7 +184,14 @@
 
     # Dbeaver
     dbeaver-bin
+
   ];
+
+  programs.steam = {
+    enable = true;
+    gamescopeSession.enable = true;
+  };
+  programs.gamemode.enable = true;
 
   # Enable the XDG portal service. hyprland
   xdg.portal.enable = true;

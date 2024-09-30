@@ -71,6 +71,8 @@
     nodejs_22
     bun
     yazi
+
+    mangohud
   ];
 
   # Enable home-manager and git

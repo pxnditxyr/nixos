@@ -62,14 +62,14 @@
 
 
         cpu = {
-          interval = 2;
+          interval = 1;
           format = "{usage}% ";
           tooltip = false;
           on-click = "hyprctl dispatcher togglespecialworkspace monitor";
         };
 
         memory = {
-          interval = 2;
+          interval = 1;
           format = " {used:0.1f}G/{total:0.1f}";
           max-length = 10;
         };
@@ -85,7 +85,7 @@
 
         network = {
           interval = 1;
-          interface = "enp4s0";
+          interface = "enp5s0";
           format-ethernet = "  {bandwidthTotalBytes:>3}  ";
           format-wifi = "  {bandwidthTotalBytes:>3}  ";
           tooltip-format-wifi = "{ipaddr} ({signalStrength}%) ";
