@@ -184,7 +184,6 @@
 
     # Dbeaver
     dbeaver-bin
-
   ];
 
   programs.steam = {
