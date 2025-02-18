@@ -142,6 +142,7 @@
 
     # setting for take in account / like a word separator in delete word
     WORDCHARS="";
+    eval "$(fnm env --use-on-cd --shell zsh)"
     '';
   };
 }

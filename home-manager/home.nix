@@ -68,10 +68,12 @@
     xclip
     clang_multi
     gnumake42
-    nodejs_22
+    # nodejs_22
     nodePackages.pnpm
     bun
     yazi
+
+    fnm
 
     mangohud
   ];
