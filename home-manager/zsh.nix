@@ -19,7 +19,7 @@
       update = "sudo nixos-rebuild switch --flake .#pxndxs";
       updatehome = "home-manager switch --flake .#pxndxs@pxndxs";
       confnix = "cd ~/.config/nixos";
-      confvim = "cd ~/workspace/neovix";
+      confvim = "cd ~/workspace/neocats";
       confhyp = "cd ~/.config/hypr";
       "57" = ''
         if [[ $WAYLAND_DISPLAY && $WAYLAND_DISPLAY != "wayland-0" ]]; then
@@ -70,7 +70,7 @@
           echo -n "ú" | xclip -selection clipboard
         fi
       '';
-      v = "nvim";
+      v = "neocats";
     };
 
     history = {

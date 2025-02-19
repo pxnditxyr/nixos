@@ -22,6 +22,7 @@
     ./jq.nix
     ./kitty.nix
     ./neovix.nix
+    ./neocats.nix
     ./obs.nix
     ./waybar.nix
     ./zsh.nix
