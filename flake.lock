@@ -814,11 +814,11 @@
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1739999801,
-        "narHash": "sha256-zB/S+273IGHMghx2XzKps/pW1yLOOEZTE7O8gksa4q8=",
+        "lastModified": 1740015266,
+        "narHash": "sha256-SbwaLFkhPsXGFV8/C/21QLELv73BD8kXkUqmqpiWoiA=",
         "owner": "pxnditxyr",
         "repo": "neocats",
-        "rev": "d9c110150332d5a54d05ed278f27089185483804",
+        "rev": "3ab6cef0315a09dd0f1f0d9a45c8d8be80e65b23",
         "type": "github"
       },
       "original": {
