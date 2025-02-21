@@ -433,11 +433,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1740060750,
-        "narHash": "sha256-FOC9OzJ5Ckh6VjzGSRh4F3UCUOdM8NrzQT19PQcQJ44=",
+        "lastModified": 1740161709,
+        "narHash": "sha256-QInyU5nXiwGzzCc3qxYHJKFY/YWege8Us7aZZOCFW4Q=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "0c0b0ac8af6ca76b1fcb514483a9bd73c18f1e8c",
+        "rev": "148a6b55651ac794f5c20bbd76780b4d8fed4334",
         "type": "github"
       },
       "original": {
@@ -542,11 +542,11 @@
         "xdph": "xdph"
       },
       "locked": {
-        "lastModified": 1740056177,
-        "narHash": "sha256-jmt2aIjK3UwbbJrflSk31zA8QL5xt/jyT7c88TRfsEs=",
+        "lastModified": 1740169613,
+        "narHash": "sha256-3bTa0nEDQTsfi+aDiGHikthn6dMuVOTCtsS0cvDV6Uw=",
         "ref": "refs/heads/main",
-        "rev": "fa246cb6ed5f486aad27c11dd46b3a26768a15d1",
-        "revCount": 5833,
+        "rev": "f4b148df1e2d8edc96bd878a4cfde32ca6515ac8",
+        "revCount": 5836,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/hyprwm/Hyprland"
@@ -811,14 +811,15 @@
         "blink": "blink",
         "neovim-nightly-overlay": "neovim-nightly-overlay",
         "nixCats": "nixCats",
-        "nixpkgs": "nixpkgs_3"
+        "nixpkgs": "nixpkgs_3",
+        "plugins-nvim-notify": "plugins-nvim-notify"
       },
       "locked": {
-        "lastModified": 1740086381,
-        "narHash": "sha256-xf2NHRgL8MxInTb7ELYIHF0Tgx1D4WE8Soypb9qcHwQ=",
+        "lastModified": 1740164499,
+        "narHash": "sha256-7k4UqT+TN0NceghESaPofWMDjj1jqgMAaI/Vnnm6jaQ=",
         "owner": "pxnditxyr",
         "repo": "neocats",
-        "rev": "b01cabacf8712c0c849160f13d11efc39cf773a5",
+        "rev": "31baaf3fc1282e0c7e32d800cc8a98e404f88e1f",
         "type": "github"
       },
       "original": {
@@ -1143,6 +1144,22 @@
       "original": {
         "owner": "mg979",
         "repo": "vim-visual-multi",
+        "type": "github"
+      }
+    },
+    "plugins-nvim-notify": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1737405174,
+        "narHash": "sha256-6vNfc7E9DMXF0IBXJCLA8Rp+uOgbDch/Q7beW0ys3Vo=",
+        "owner": "rcarriga",
+        "repo": "nvim-notify",
+        "rev": "22f29093eae7785773ee9d543f8750348b1a195c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rcarriga",
+        "repo": "nvim-notify",
         "type": "github"
       }
     },
