@@ -19,7 +19,6 @@
     };
 
     # NeoVix Pxndxs 🐼 my neovim configuration
-    neovix.url = "github:pxnditxyr/neovix";
     neocats.url = "github:pxnditxyr/neocats";
   };
 
