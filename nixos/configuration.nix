@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, ... }:
 
 {
   imports =
@@ -11,9 +11,8 @@
     ];
 
   # Bootloader.
-  boot.loader.grub.enable = true;
-  boot.loader.grub.device = "/dev/nvme0n1";
-  boot.loader.grub.useOSProber = true;
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
 
   networking.hostName = "pxndxs"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -47,12 +46,10 @@
   services.xserver.enable = true;
 
   # Enable the Pantheon Desktop Environment.
-  # services.xserver.displayManager.lightdm.enable = true;
   services.displayManager.sddm.enable = true;
-
+  # services.xserver.displayManager.lightdm.enable = true;
   services.xserver.desktopManager.pantheon.enable = true;
 
-  # Configure keymap in X11
   services.xserver = {
     xkb.layout = "us";
     xkb.variant = "dvorak";
@@ -66,17 +63,14 @@
       enable = true;
       enable32Bit = true;
     };
+
     nvidia = {
       open = false;
       modesetting.enable = true;
       nvidiaSettings = true;
-      # prime = {
-      #   sync.enable = true;
-      #   amdgpuBusId = "PCI:4:0:0";
-      #   nvidiaBusId = "PCI:1:0:0";
-      # };
     };
   };
+
 
   # Configure console keymap
   console.keyMap = "dvorak";
@@ -85,7 +79,8 @@
   services.printing.enable = true;
 
   # Enable sound with pipewire.
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
+
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -93,11 +88,6 @@
     alsa.support32Bit = true;
     pulse.enable = true;
     jack.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
     #media-session.enable = true;
   };
 
@@ -123,43 +113,27 @@
     xwayland.enable = true;
   };
 
-
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
     curl
 
-    # compression tools
     zip
     unzip
     unrar
 
-    # clipboards
     xclip
     wl-clipboard
 
-    gnumake42
-    clang_multi
-    gcc
-
-    # Javascript
-    nodejs_22
-    bun
-
-    # Terminal file manager
-    yazi
-
-    # browser
     brave
 
-    # screen shot for x11
     flameshot
 
-    # hyprland
     wofi
     networkmanagerapplet
     eww
@@ -171,44 +145,35 @@
       } )
     )
 
-    # Screen shots wayland
     grim
     swappy
     slurp
 
-    # SSH Askpass
-    lxqt.lxqt-openssh-askpass
-
-    # Utils
     anydesk
-
-    # Dbeaver
-    dbeaver-bin
   ];
+
 
   programs.steam = {
     enable = true;
     gamescopeSession.enable = true;
   };
+
   programs.gamemode.enable = true;
 
-  # Enable the XDG portal service. hyprland
   xdg.portal.enable = true;
-  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+  xdg.portal.extraPortals = [
+    pkgs.xdg-desktop-portal-gtk
+    pkgs.xdg-desktop-portal-hyprland
+  ];
 
-
-  # environment = {
-  #   variables = {
-  #     PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
-  #   };
-  # };
-
-  programs.ssh.askPassword = "lxqt-openssh-askpass";
-
-  # Docker
   virtualisation.docker.enable = true;
 
-
+  nix = {
+    settings = {
+      experimental-features = [ "flakes" "nix-command" ];
+      trusted-users = [ "root" "@wheel" ];
+    };
+  };
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
@@ -228,20 +193,12 @@
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
-  nix = {
-    settings = {
-      experimental-features = [ "flakes" "nix-command" ];
-      trusted-users = [ "root" "@wheel" ];
-    };
-  };
-
-
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "24.05"; # Did you read the comment?
+  system.stateVersion = "24.11"; # Did you read the comment?
 
 }
