@@ -43,14 +43,14 @@
   };
 
   # Enable the X11 windowing system.
-  services.xserver.enable = true;
 
   # Enable the Pantheon Desktop Environment.
   services.displayManager.sddm.enable = true;
   # services.xserver.displayManager.lightdm.enable = true;
-  services.xserver.desktopManager.pantheon.enable = true;
 
   services.xserver = {
+    enable = true;
+    desktopManager.pantheon.enable = true;
     xkb.layout = "us";
     xkb.variant = "dvorak";
     videoDrivers = [ "nvidia" ];
@@ -76,7 +76,7 @@
   console.keyMap = "dvorak";
 
   # Enable CUPS to print documents.
-  services.printing.enable = true;
+  # services.printing.enable = true;
 
   # Enable sound with pipewire.
   services.pulseaudio.enable = false;
@@ -112,6 +112,11 @@
     enable = true;
     xwayland.enable = true;
   };
+
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+    fnm
+  ];
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -150,6 +155,8 @@
     slurp
 
     anydesk
+
+    warp-terminal
   ];
 
 
