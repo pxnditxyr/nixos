@@ -18,7 +18,7 @@
       inputs.hyprland.follows = "hyprland";
     };
 
-    # NeoVix Pxndxs 🐼 my neovim configuration
+    # NeoCats Pxndxs 🐼 my neovim configuration
     neocats.url = "github:pxnditxyr/neocats";
   };
 
