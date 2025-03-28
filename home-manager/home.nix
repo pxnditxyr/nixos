@@ -76,6 +76,7 @@
     fnm
 
     mangohud
+    deno
   ];
 
   # Enable home-manager and git
