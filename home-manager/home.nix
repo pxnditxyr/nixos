@@ -25,6 +25,7 @@
     ./obs.nix
     ./waybar.nix
     ./zsh.nix
+    ./python.nix
   ];
 
   nixpkgs = {
