@@ -79,9 +79,9 @@
     mangohud
     deno
 
-    cargo
-    rust
-    rustc
+    # cargo
+    # rust
+    # rustc
     rPackages.rolldown
   ];
 
