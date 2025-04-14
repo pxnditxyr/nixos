@@ -78,6 +78,11 @@
 
     mangohud
     deno
+
+    cargo
+    rust
+    rustc
+    rPackages.rolldown
   ];
 
   # Enable home-manager and git
