@@ -77,7 +77,7 @@
       size = 10000;
       path = "${ config.xdg.dataHome }/zsh/history";
     };
-    initExtra = ''
+    initContent = ''
     # colors
     NAME_COLOR='#00FFC6';
     FIRST_PAW_COLOR='#85EF47';
