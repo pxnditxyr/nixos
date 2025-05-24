@@ -98,7 +98,7 @@
   users.users.pxndxs = {
     isNormalUser = true;
     description = "Pxndxs";
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" "stian" ];
     shell = pkgs.zsh;
     packages = with pkgs; [
     #  thunderbird
@@ -179,6 +179,9 @@
   ];
 
   virtualisation.docker.enable = true;
+  virtualisation.virtualbox.host.enable = true;
+  virtualisation.virtualbox.host.enableExtensionPack = true;
+
 
   nix = {
     settings = {
