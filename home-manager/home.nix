@@ -83,6 +83,8 @@
     # rust
     # rustc
     rPackages.rolldown
+    python313Packages.pyngrok
+    warp-terminal
   ];
 
   # Enable home-manager and git

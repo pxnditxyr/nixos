@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   imports =
@@ -48,6 +48,7 @@
   services.displayManager.sddm.enable = true;
   # services.xserver.displayManager.lightdm.enable = true;
 
+
   services.xserver = {
     enable = true;
     desktopManager.pantheon.enable = true;
@@ -57,6 +58,8 @@
     autoRepeatDelay = 200;
     autoRepeatInterval = 40;
   };
+
+  services.gnome.gnome-keyring.enable = lib.mkForce false;
 
   hardware = {
     graphics = {
@@ -160,8 +163,6 @@
     vlc
 
     android-studio
-
-    warp-terminal
   ];
 
 
