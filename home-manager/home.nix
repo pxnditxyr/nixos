@@ -84,6 +84,8 @@
     # rustc
     rPackages.rolldown
     python313Packages.pyngrok
+
+    ulauncher
     warp-terminal
   ];
 
