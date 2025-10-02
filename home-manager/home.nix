@@ -26,6 +26,7 @@
     ./waybar.nix
     ./zsh.nix
     ./python.nix
+    ./rofi.nix
   ];
 
   nixpkgs = {
@@ -84,8 +85,6 @@
     # rustc
     rPackages.rolldown
     python313Packages.pyngrok
-    rofi
-    # ulauncher
     warp-terminal
   ];
 
