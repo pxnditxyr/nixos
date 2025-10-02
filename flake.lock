@@ -399,11 +399,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1759106866,
-        "narHash": "sha256-GjLvAl7qxGxKtop6ghasxjQ1biTT7pA+WU45byzMl/4=",
+        "lastModified": 1759337100,
+        "narHash": "sha256-CcT3QvZ74NGfM+lSOILcCEeU+SnqXRvl1XCRHenZ0Us=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "619ae569293b6427d23cce4854eb4f3c33af3eec",
+        "rev": "004753ae6b04c4b18aa07192c1106800aaacf6c3",
         "type": "github"
       },
       "original": {
@@ -486,11 +486,11 @@
         "xdph": "xdph"
       },
       "locked": {
-        "lastModified": 1759148562,
-        "narHash": "sha256-H/GZ1/nMoAysTT03kRFWmRa5/g8k+ZDumqwVPr8/VdE=",
+        "lastModified": 1759318697,
+        "narHash": "sha256-IFdLJrNDZxgQglBSt1hd+sIurIvUcQzDngusDW+7gII=",
         "ref": "refs/heads/main",
-        "rev": "09596725910aab2a9defed250348aebeee40f842",
-        "revCount": 6466,
+        "rev": "e0c96276df75accc853a30186ae5de580b2c725f",
+        "revCount": 6471,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/hyprwm/Hyprland"
@@ -770,15 +770,16 @@
         "plugins-npm-info.nvim": "plugins-npm-info.nvim",
         "plugins-nvim-notify": "plugins-nvim-notify",
         "plugins-oil.nvim": "plugins-oil.nvim",
+        "plugins-sidekick.nvim": "plugins-sidekick.nvim",
         "plugins-snacks.nvim": "plugins-snacks.nvim",
         "prisma-language-tools": "prisma-language-tools"
       },
       "locked": {
-        "lastModified": 1759167709,
-        "narHash": "sha256-Ny9Y74qBMEhaIPmJWwRitDnTi3FMZMbUFl2iBamDGHg=",
+        "lastModified": 1759341245,
+        "narHash": "sha256-Pu+e701zpwEF11QI9JR67H0YKx5QCe7rmxRMzf/nR6U=",
         "owner": "pxnditxyr",
         "repo": "neocats",
-        "rev": "3e4a547abfa9dcd3ebb70c23c605639b154098d5",
+        "rev": "dfd8ab51f7e8c68086513f7dfc4dafdd3c5b1e2a",
         "type": "github"
       },
       "original": {
@@ -1018,6 +1019,22 @@
       "original": {
         "owner": "stevearc",
         "repo": "oil.nvim",
+        "type": "github"
+      }
+    },
+    "plugins-sidekick.nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1759295829,
+        "narHash": "sha256-Wg3IzsYqnON5rsVhGXGyhjUgWM9+RG9LV/ZwrtkckWM=",
+        "owner": "folke",
+        "repo": "sidekick.nvim",
+        "rev": "8c940476cae4e2ba779ed6c73080d097694e406c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "folke",
+        "repo": "sidekick.nvim",
         "type": "github"
       }
     },
