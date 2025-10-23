@@ -51,7 +51,7 @@
 
   services.xserver = {
     enable = true;
-    desktopManager.pantheon.enable = true;
+    # desktopManager.pantheon.enable = true;
     xkb.layout = "us";
     xkb.variant = "dvorak";
     videoDrivers = [ "nvidia" ];
@@ -149,16 +149,18 @@
     dunst
     swww
     libnotify
-    ( waybar.overrideAttrs ( oldAttrs: {
-        mesonFlags = oldAttrs.mesonFlags ++ [ "-Dexperimental=true" ];
-      } )
-    )
+    # ( waybar.overrideAttrs ( oldAttrs: {
+    #     mesonFlags = oldAttrs.mesonFlags ++ [ "-Dexperimental=true" ];
+    #   } )
+    # )
+    waybar
 
     grim
     swappy
     slurp
 
     anydesk
+    rustdesk
 
     vlc
 
