@@ -15,12 +15,26 @@
     };
 
     shellAliases = {
-      l = "LC_COLLATE=C ls -la --color=auto --group-directories-first --block-size=M";
+      # Modern ls replacement with eza (better colors, git integration, icons)
+      l = "eza -la --icons --group-directories-first --git";
+      ll = "eza -l --icons --group-directories-first --git";
+      lt = "eza -laT --icons --group-directories-first --git --level=2";
+      ls = "eza --icons --group-directories-first";
+      
+      # System management
       update = "sudo nixos-rebuild switch --flake .#pxndxs";
       updatehome = "home-manager switch --flake .#pxndxs@pxndxs";
+      
+      # Quick navigation
       confnix = "cd ~/.config/nixos";
       confvim = "cd ~/workspace/neocats";
       confhyp = "cd ~/.config/hypr";
+      
+      # Modern tools (use \command to bypass alias, e.g., \cat, \grep)
+      cat = "bat --style=auto";
+      find = "fd";
+      # grep = "rg";  # Comentado para evitar conflictos con scripts que usan grep -E
+      # Usa 'rg' directamente cuando busques en archivos
       "57" = ''
         if [[ $WAYLAND_DISPLAY && $WAYLAND_DISPLAY != "wayland-0" ]]; then
           echo -n "6" | wl-copy
@@ -77,7 +91,8 @@
       size = 10000;
       path = "${ config.xdg.dataHome }/zsh/history";
     };
-    initContent = ''
+    
+    initExtra = ''
     # colors
     NAME_COLOR='#00FFC6';
     FIRST_PAW_COLOR='#85EF47';
@@ -112,13 +127,22 @@
       color_push="#0D7C66"
       color_untracked="#E5B273"
 
-      # Get git status counts
+      # Get git status counts with proper parsing
       local git_status=$(git status --porcelain=v1 2>/dev/null)
-      local added=$(echo "$git_status" | grep '^A' | wc -l)
-      local changed=$(echo "$git_status" | grep '^ M' | wc -l)
-      local deleted=$(echo "$git_status" | grep '^D' | wc -l)
-      local unpushed=$(git log --branches --not --remotes 2>/dev/null | grep '^commit' | wc -l)
-      local untracked=$(echo "$git_status" | grep '^?' | wc -l)
+      
+      # Count files properly:
+      # First column = staging area, Second column = working directory
+      # A  = added to staging
+      # M  = modified in staging
+      #  M = modified in working directory
+      # ?? = untracked
+      # D  = deleted
+      # Using /bin/grep to avoid conflicts with rg alias
+      local added=$(echo "$git_status" | /bin/grep -E '^A[ MD]' | wc -l)
+      local changed=$(echo "$git_status" | /bin/grep -E '^[ MARC]M' | wc -l)
+      local deleted=$(echo "$git_status" | /bin/grep -E '^[ MARC]?D' | wc -l)
+      local unpushed=$(git log --branches --not --remotes 2>/dev/null | /bin/grep '^commit' | wc -l)
+      local untracked=$(echo "$git_status" | /bin/grep '^\?\?' | wc -l)
 
       local output=""
 
@@ -127,8 +151,6 @@
       [[ $deleted -gt 0 ]] && output+="%F{$color_delete}$icon_delete $deleted %f"
       [[ $unpushed -gt 0 ]] && output+="%F{$color_push}$icon_push $unpushed %f"
       [[ $untracked -gt 0 ]] && output+="%F{$color_untracked}$icon_untracked $untracked %f"
-
-      # [[ -z $output ]] && output=""
 
       echo $output
     }
@@ -142,7 +164,12 @@
 
     # setting for take in account / like a word separator in delete word
     WORDCHARS="";
+    
+    # fnm - Fast Node Manager
     eval "$(fnm env --use-on-cd --shell zsh)"
+    
+    # zoxide - smarter cd command (use 'z' instead of 'cd')
+    eval "$(zoxide init zsh)"
     '';
   };
 }
