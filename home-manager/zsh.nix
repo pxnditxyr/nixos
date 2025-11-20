@@ -15,26 +15,21 @@
     };
 
     shellAliases = {
-      # Modern ls replacement with eza (better colors, git integration, icons)
       l = "eza -la --icons --group-directories-first --git";
       ll = "eza -l --icons --group-directories-first --git";
       lt = "eza -laT --icons --group-directories-first --git --level=2";
       ls = "eza --icons --group-directories-first";
 
-      # System management
       update = "sudo nixos-rebuild switch --flake .#pxndxs";
       updatehome = "home-manager switch --flake .#pxndxs@pxndxs";
 
-      # Quick navigation
       confnix = "cd ~/.config/nixos";
       confvim = "cd ~/workspace/neocats";
       confhyp = "cd ~/.config/hypr";
 
-      # Modern tools (use \command to bypass alias, e.g., \cat, \grep)
       cat = "bat --style=auto";
       find = "fd";
-      # grep = "rg";  # Comentado para evitar conflictos con scripts que usan grep -E
-      # Usa 'rg' directamente cuando busques en archivos
+
       "57" = ''
         if [[ $WAYLAND_DISPLAY && $WAYLAND_DISPLAY != "wayland-0" ]]; then
           echo -n "6" | wl-copy
@@ -130,19 +125,26 @@
       # Get git status counts with proper parsing
       local git_status=$(git status --porcelain=v1 2>/dev/null)
 
+      [[ -z "$git_status" ]] && return
+
       # Count files properly:
-      # First column = staging area, Second column = working directory
-      # A  = added to staging
-      # M  = modified in staging
-      #  M = modified in working directory
-      # ?? = untracked
-      # D  = deleted
-      # Using /bin/grep to avoid conflicts with rg alias
-      local added=$(echo "$git_status" | /bin/grep -E '^A[ MD]' | wc -l)
-      local changed=$(echo "$git_status" | /bin/grep -E '^[ MARC]M' | wc -l)
-      local deleted=$(echo "$git_status" | /bin/grep -E '^[ MARC]?D' | wc -l)
-      local unpushed=$(git log --branches --not --remotes 2>/dev/null | /bin/grep '^commit' | wc -l)
-      local untracked=$(echo "$git_status" | /bin/grep '^\?\?' | wc -l)
+      local added=0
+      local changed=0
+      local deleted=0
+      local untracked=0
+      local unpushed=0
+
+      # Count each type (evita problemas con wc -l en strings vacíos)
+      [[ -n "$git_status" ]] && added=$(echo "$git_status" | /bin/grep -E '^A[ MD]' | wc -l)
+      [[ -n "$git_status" ]] && changed=$(echo "$git_status" | /bin/grep -E '^[ MARC]M' | wc -l)
+      [[ -n "$git_status" ]] && deleted=$(echo "$git_status" | /bin/grep -E '^[ MARC]?D' | wc -l)
+      [[ -n "$git_status" ]] && untracked=$(echo "$git_status" | /bin/grep '^\?\?' | wc -l)
+
+      # Solo contar unpushed si hay remotes configurados
+      if git remote | /bin/grep -q .; then
+        local unpushed_commits=$(git log --branches --not --remotes 2>/dev/null)
+        [[ -n "$unpushed_commits" ]] && unpushed=$(echo "$unpushed_commits" | /bin/grep '^commit' | wc -l)
+      fi
 
       local output=""
 
