@@ -20,16 +20,16 @@
       ll = "eza -l --icons --group-directories-first --git";
       lt = "eza -laT --icons --group-directories-first --git --level=2";
       ls = "eza --icons --group-directories-first";
-      
+
       # System management
       update = "sudo nixos-rebuild switch --flake .#pxndxs";
       updatehome = "home-manager switch --flake .#pxndxs@pxndxs";
-      
+
       # Quick navigation
       confnix = "cd ~/.config/nixos";
       confvim = "cd ~/workspace/neocats";
       confhyp = "cd ~/.config/hypr";
-      
+
       # Modern tools (use \command to bypass alias, e.g., \cat, \grep)
       cat = "bat --style=auto";
       find = "fd";
@@ -91,8 +91,8 @@
       size = 10000;
       path = "${ config.xdg.dataHome }/zsh/history";
     };
-    
-    initExtra = ''
+
+    initContent = ''
     # colors
     NAME_COLOR='#00FFC6';
     FIRST_PAW_COLOR='#85EF47';
@@ -129,7 +129,7 @@
 
       # Get git status counts with proper parsing
       local git_status=$(git status --porcelain=v1 2>/dev/null)
-      
+
       # Count files properly:
       # First column = staging area, Second column = working directory
       # A  = added to staging
@@ -164,10 +164,10 @@
 
     # setting for take in account / like a word separator in delete word
     WORDCHARS="";
-    
+
     # fnm - Fast Node Manager
     eval "$(fnm env --use-on-cd --shell zsh)"
-    
+
     # zoxide - smarter cd command (use 'z' instead of 'cd')
     eval "$(zoxide init zsh)"
     '';
