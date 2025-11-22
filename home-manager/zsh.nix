@@ -135,15 +135,15 @@
       local unpushed=0
 
       # Count each type (evita problemas con wc -l en strings vacíos)
-      [[ -n "$git_status" ]] && added=$(echo "$git_status" | /bin/grep -E '^A[ MD]' | wc -l)
-      [[ -n "$git_status" ]] && changed=$(echo "$git_status" | /bin/grep -E '^[ MARC]M' | wc -l)
-      [[ -n "$git_status" ]] && deleted=$(echo "$git_status" | /bin/grep -E '^[ MARC]?D' | wc -l)
-      [[ -n "$git_status" ]] && untracked=$(echo "$git_status" | /bin/grep '^\?\?' | wc -l)
+      [[ -n "$git_status" ]] && added=$(echo "$git_status" | grep -E '^A[ MD]' | wc -l)
+      [[ -n "$git_status" ]] && changed=$(echo "$git_status" | grep -E '^[ MARC]M' | wc -l)
+      [[ -n "$git_status" ]] && deleted=$(echo "$git_status" | grep -E '^[ MARC]?D' | wc -l)
+      [[ -n "$git_status" ]] && untracked=$(echo "$git_status" | grep -F '??' | wc -l)
 
       # Solo contar unpushed si hay remotes configurados
-      if git remote | /bin/grep -q .; then
+      if git remote | grep -q .; then
         local unpushed_commits=$(git log --branches --not --remotes 2>/dev/null)
-        [[ -n "$unpushed_commits" ]] && unpushed=$(echo "$unpushed_commits" | /bin/grep '^commit' | wc -l)
+        [[ -n "$unpushed_commits" ]] && unpushed=$(echo "$unpushed_commits" | grep '^commit' | wc -l)
       fi
 
       local output=""
