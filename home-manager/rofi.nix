@@ -11,26 +11,31 @@
 
   xdg.configFile."rofi/config.rasi".text = ''
     configuration {
-      modi: "drun,run,emoji"; /* 'modi' es un alias de 'modes' */
+      modi: "drun,run,emoji";
       show-icons: true;
       icon-theme: "Papirus";
       drun-display-format: "{name}";
       cache-dir: "/home/pxndxs/.cache/rofi";
+      display-drun: " ";
+      display-run: "🐼 ";
+      display-emoji: " ";
     }
 
-    /*******************************************************************************
-     * THEME CONFIG
-     *******************************************************************************/
     * {
-        font:   "Montserrat 14";
+        font:   "CaskaydiaCove Nerd Font 13";
 
-        bg0:    #242424E1;
-        bg1:    #7E7E7E80;
-        bg2:    #551999E6; /* Purple bar highlight  */
+        /* Colores de fondo - Más oscuro para mejor contraste */
+        bg0:    #1a1a1aF0;
+        bg1:    #404040;
+        bg2:    #7B3FF2;
+        bg3:    #2a2a2a;
 
-        fg0:    #DEDEDE;
+        fg0:    #E8E8E8;
         fg1:    #FFFFFF;
-        fg2:    #DEDEDE80;
+        fg2:    #A0A0A0;
+
+        accent: #9D6EFF;
+        urgent: #FF6B6B;
 
         background-color:   transparent;
         text-color:         @fg0;
@@ -43,23 +48,29 @@
         background-color:   @bg0;
         location:           center;
         width:              840;
-        border-radius:      8;
+        border-radius:      10;
+        border:             2px;
+        border-color:       @accent;
     }
 
     inputbar {
-        font:       "Montserrat 16";
-        padding:    12px;
+        font:       "CaskaydiaCove Nerd Font 15";
+        padding:    14px;
         spacing:    12px;
-        children:   [ icon-search, entry ];
+        children:   [ prompt, entry ];
+        background-color:   @bg3;
+        border-radius:      8px;
+        margin:             8px;
     }
 
-    icon-search {
-        expand:     false;
-        filename:   "search";
-        size:       28px;
+    prompt {
+        enabled:    true;
+        font:       "CaskaydiaCove Nerd Font 18";
+        text-color: @accent;
+        content:    " ";
     }
 
-    icon-search, entry, element-icon, element-text {
+    prompt, entry, element-icon, element-text {
         vertical-align: 0.5;
     }
 
@@ -67,33 +78,62 @@
         font:   inherit;
         placeholder:         "Search";
         placeholder-color:   @fg2;
+        text-color:          @fg1;
     }
 
     listview {
         lines:          10;
         columns:        2;
         fixed-height:   false;
-        border:         1px 0 0;
+        border:         2px 0 0;
         border-color:   @bg1;
+        padding:        4px;
     }
 
     element {
-        padding:            8px 16px;
+        padding:            10px 16px;
         spacing:            16px;
         background-color:   transparent;
+        border-radius:      6px;
     }
 
-    element selected normal, element selected active {
+    element normal.normal {
+        background-color:   transparent;
+        text-color:         @fg0;
+    }
+
+    element normal.active {
+        background-color:   transparent;
+        text-color:         @accent;
+    }
+
+    element selected.normal {
         background-color:   @bg2;
         text-color:         @fg1;
     }
 
+    element selected.active {
+        background-color:   @bg2;
+        text-color:         @fg1;
+    }
+
+    element alternate.normal {
+        background-color:   transparent;
+        text-color:         @fg0;
+    }
+
     element-icon {
-        size:   2em;
+        size:           2em;
+        background-color: transparent;
     }
 
     element-text {
-        text-color: inherit;
+        text-color:     inherit;
+        background-color: transparent;
+    }
+
+    element urgent {
+        text-color: @urgent;
     }
   '';
 }
