@@ -68,7 +68,7 @@
     xclip
     clang_multi
     gnumake42
-    
+
     # Modern CLI replacements (Rust-based, fast and feature-rich)
     bat          # Better cat with syntax highlighting
     eza          # Better ls with colors, icons, git integration (already installed)
@@ -80,29 +80,32 @@
     btop         # Better top/htop - beautiful system monitor
     procs        # Better ps - modern process viewer
     sd           # Better sed - simpler find & replace
-    
+
     # Node.js ecosystem
     # nodejs_22
     nodePackages.pnpm
     bun
     fnm
-    
+
     # File managers and tools
     yazi         # Terminal file manager
-    
+
     # Development tools
     deno
     mangohud
-    
+
     # Rust tools (commented, uncomment if needed)
     # cargo
     # rust
     # rustc
-    
+
     # Other tools
     rPackages.rolldown
     python313Packages.pyngrok
     warp-terminal
+
+    # Development tools
+    stripe-cli
   ];
 
   # Enable home-manager and git

@@ -84,94 +84,92 @@
 
     history = {
       size = 10000;
-      path = "${ config.xdg.dataHome }/zsh/history";
+      path = "${config.xdg.dataHome}/zsh/history";
     };
 
     initContent = ''
-    # colors
-    NAME_COLOR='#00FFC6';
-    FIRST_PAW_COLOR='#85EF47';
-    SECOND_PAW_COLOR='#FF5722';
-    DIR_COLOR='#EA047E';
+      # colors
+      NAME_COLOR='#00FFC6';
+      FIRST_PAW_COLOR='#85EF47';
+      SECOND_PAW_COLOR='#FF5722';
+      DIR_COLOR='#EA047E';
 
-    function git_branch_name () {
-      color_git="#FFED00";
-      icon_git=" "
-      branch=$(git symbolic-ref HEAD 2> /dev/null | awk 'BEGIN{FS="/"} {print $NF}')
-      local output=""
-      if [[ $branch == "" ]]; then
-        output=""
-      else
-        output="%F{$color_git}$icon_git($branch) %f"
-      fi
-      echo $output
-    }
+      function git_branch_name () {
+        color_git="#FFED00";
+        icon_git=" "
+        branch=$(git symbolic-ref HEAD 2> /dev/null | awk 'BEGIN{FS="/"} {print $NF}')
+        local output=""
+        if [[ $branch == "" ]]; then
+          output=""
+        else
+          output="%F{$color_git}$icon_git($branch) %f"
+        fi
+        echo $output
+      }
 
-    function git_status_summary_xd () {
-      # Define icons
-      icon_add="󱝹"
-      icon_change=""
-      icon_delete="󱂧"
-      icon_push="󱖉"
-      icon_untracked="󱛑"
+      function git_status_summary_xd () {
+        # Define icons
+        icon_add="󱝹"
+        icon_change=""
+        icon_delete="󱂧"
+        icon_push="󱖉"
+        icon_untracked="󱛑"
 
-      # Define colors
-      color_add="#9CFF2E"
-      color_change="#9CDBA6"
-      color_delete="#ef4444"
-      color_push="#0D7C66"
-      color_untracked="#E5B273"
+        # Define colors
+        color_add="#9CFF2E"
+        color_change="#9CDBA6"
+        color_delete="#ef4444"
+        color_push="#0D7C66"
+        color_untracked="#E5B273"
 
-      # Get git status counts with proper parsing
-      local git_status=$(git status --porcelain=v1 2>/dev/null)
+        # Get git status counts with proper parsing
+        local git_status=$(git status --porcelain=v1 2>/dev/null)
 
-      [[ -z "$git_status" ]] && return
+        [[ -z "$git_status" ]] && return
 
-      # Count files properly:
-      local added=0
-      local changed=0
-      local deleted=0
-      local untracked=0
-      local unpushed=0
+        # Count files properly:
+        local added=0
+        local changed=0
+        local deleted=0
+        local untracked=0
+        local unpushed=0
 
-      # Count each type (evita problemas con wc -l en strings vacíos)
-      [[ -n "$git_status" ]] && added=$(echo "$git_status" | grep -E '^A[ MD]' | wc -l)
-      [[ -n "$git_status" ]] && changed=$(echo "$git_status" | grep -E '^[ MARC]M' | wc -l)
-      [[ -n "$git_status" ]] && deleted=$(echo "$git_status" | grep -E '^[ MARC]?D' | wc -l)
-      [[ -n "$git_status" ]] && untracked=$(echo "$git_status" | grep -F '??' | wc -l)
+        # Count each type (evita problemas con wc -l en strings vacíos)
+        [[ -n "$git_status" ]] && added=$(echo "$git_status" | grep -E '^A[ MD]' | wc -l)
+        [[ -n "$git_status" ]] && changed=$(echo "$git_status" | grep -E '^[ MARC]M' | wc -l)
+        [[ -n "$git_status" ]] && deleted=$(echo "$git_status" | grep -E '^[ MARC]?D' | wc -l)
+        [[ -n "$git_status" ]] && untracked=$(echo "$git_status" | grep -F '??' | wc -l)
 
-      # Solo contar unpushed si hay remotes configurados
-      if git remote | grep -q .; then
-        local unpushed_commits=$(git log --branches --not --remotes 2>/dev/null)
-        [[ -n "$unpushed_commits" ]] && unpushed=$(echo "$unpushed_commits" | grep '^commit' | wc -l)
-      fi
+        if git rev-parse --abbrev-ref @{upstream} &>/dev/null; then
+          unpushed=$(git rev-list @{upstream}..HEAD 2>/dev/null | wc -l)
+        fi
 
-      local output=""
+        local output=""
 
-      [[ $added -gt 0 ]] && output+="%F{$color_add}$icon_add $added %f"
-      [[ $changed -gt 0 ]] && output+="%F{$color_change}$icon_change $changed %f"
-      [[ $deleted -gt 0 ]] && output+="%F{$color_delete}$icon_delete $deleted %f"
-      [[ $unpushed -gt 0 ]] && output+="%F{$color_push}$icon_push $unpushed %f"
-      [[ $untracked -gt 0 ]] && output+="%F{$color_untracked}$icon_untracked $untracked %f"
+        [[ $added -gt 0 ]] && output+="%F{$color_add}$icon_add $added %f"
+        [[ $changed -gt 0 ]] && output+="%F{$color_change}$icon_change $changed %f"
+        [[ $deleted -gt 0 ]] && output+="%F{$color_delete}$icon_delete $deleted %f"
+        [[ $unpushed -gt 0 ]] && output+="%F{$color_push}$icon_push $unpushed %f"
+        [[ $untracked -gt 0 ]] && output+="%F{$color_untracked}$icon_untracked $untracked %f"
 
-      echo $output
-    }
+        echo $output
+      }
 
-    PROMPT="🐼 "
-    PROMPT+="%F{$NAME_COLOR}%n ";
-    PROMPT+="%F{$FIRST_PAW_COLOR}  ";
-    PROMPT+="%F{$DIR_COLOR}%~ ";
-    PROMPT+='$(git_branch_name)$(git_status_summary_xd)';
-    PROMPT+="%F{$SECOND_PAW_COLOR}  %f";
+      PROMPT="🐼 "
+      PROMPT+="%F{$NAME_COLOR}%n ";
+      PROMPT+="%F{$FIRST_PAW_COLOR}  ";
+      PROMPT+="%F{$DIR_COLOR}%~ ";
+      PROMPT+='$(git_branch_name)$(git_status_summary_xd)';
+      PROMPT+="%F{$SECOND_PAW_COLOR}  %f";
 
-    # setting for take in account / like a word separator in delete word
-    WORDCHARS="";
+      # setting for take in account / like a word separator in delete word
+      WORDCHARS="";
 
-    # fnm - Fast Node Manager
-    eval "$(fnm env --use-on-cd --shell zsh)"
+      # fnm - Fast Node Manager
+      eval "$(fnm env --use-on-cd --shell zsh)"
 
-    # zoxide - smarter cd command (use 'z' instead of 'cd')
-    eval "$(zoxide init zsh)"
+      # zoxide - smarter cd command (use 'z' instead of 'cd')
+      eval "$(zoxide init zsh)"
     '';
   };
 }
