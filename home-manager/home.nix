@@ -83,7 +83,7 @@
 
     # Node.js ecosystem
     # nodejs_22
-    nodePackages.pnpm
+    pnpm
     bun
     fnm
 

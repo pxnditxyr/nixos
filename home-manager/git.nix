@@ -99,7 +99,7 @@
 
       # Core settings
       core = {
-        editor = "nvim";
+        editor = "neocats";
         autocrlf = "input";  # Evita problemas de line endings en Linux
         whitespace = "trailing-space,space-before-tab";
       };
@@ -215,7 +215,7 @@
   programs.delta = {
     enable = true;
     enableGitIntegration = true;  # Integración explícita con git
-    
+
     options = {
       navigate = true;
       line-numbers = true;

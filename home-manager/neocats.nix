@@ -1,6 +1,6 @@
 { inputs, pkgs, ... }:
 {
   home.packages = [
-    inputs.neocats.packages.${ pkgs.system }.default
+    inputs.neocats.packages.${ pkgs.stdenv.hostPlatform.system }.default
   ];
 }
