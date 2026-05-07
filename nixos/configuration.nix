@@ -128,6 +128,17 @@
     allowUnfree = true;
   };
 
+  # Nix daemon: flakes on, store deduplication on, weekly GC of >30d generations
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+    auto-optimise-store = true;
+  };
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 30d";
+  };
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [

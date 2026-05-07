@@ -14,6 +14,8 @@
 
     # You can also split up your configuration and import pieces of it here:
     # ./nvim.nix
+    ./packages.nix
+    ./shell-integrations.nix
     ./chromium.nix
     ./direnv.nix
     ./fonts.nix
@@ -56,57 +58,8 @@
     homeDirectory = "/home/pxndxs";
   };
 
-  # Add stuff for your user as you see fit:
-  # programs.neovim.enable = true;
-  home.packages = with pkgs; [
-    # Core utilities
-    wget
-    curl
-    zip
-    unzip
-    unrar
-    xclip
-    clang_multi
-    gnumake42
-
-    # Modern CLI replacements (Rust-based, fast and feature-rich)
-    bat          # Better cat with syntax highlighting
-    eza          # Better ls with colors, icons, git integration (already installed)
-    fd           # Better find - simple, fast, user-friendly
-    ripgrep      # Better grep - respects .gitignore, super fast
-    zoxide       # Better cd - learns your habits (use 'z' command)
-    tldr         # Simplified man pages with practical examples
-    dust         # Better du - disk usage analyzer with tree view
-    btop         # Better top/htop - beautiful system monitor
-    procs        # Better ps - modern process viewer
-    sd           # Better sed - simpler find & replace
-
-    # Node.js ecosystem
-    # nodejs_22
-    pnpm
-    bun
-    fnm
-
-    # File managers and tools
-    yazi         # Terminal file manager
-
-    # Development tools
-    deno
-    mangohud
-
-    # Rust tools (commented, uncomment if needed)
-    # cargo
-    # rust
-    # rustc
-
-    # Other tools
-    rPackages.rolldown
-    python313Packages.pyngrok
-    warp-terminal
-
-    # Development tools
-    stripe-cli
-  ];
+  # User-package list lives in ./packages.nix so it is shared by every host
+  # (see imports above). Add packages there, not here.
 
   # Enable home-manager and git
   programs.home-manager.enable = true;

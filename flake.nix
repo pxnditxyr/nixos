@@ -5,9 +5,9 @@
     # Nixpkgs
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    # Home manager
+    # Home manager — pinned to release branch matching home.stateVersion
     home-manager = {
-      url = "github:nix-community/home-manager";
+      url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -43,12 +43,22 @@
     # Standalone home-manager configuration entrypoint
     # Available through 'home-manager --flake .#your-username@your-hostname'
     homeConfigurations = {
-      # FIXME replace with your username@hostname
+      # Canonical NixOS profile (Hyprland/Wayland desktop)
       "pxndxs@pxndxs" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
         extraSpecialArgs = {inherit inputs outputs;};
         # > Our main home-manager configuration file <
         modules = [./home-manager/home.nix];
+      };
+
+      # Ubuntu/X11/macOS-themed layer — runs the same module ecosystem
+      # MINUS the Wayland-only modules (hyprland, waybar) and rofi
+      # (kept outside Nix to preserve the WhiteSur Spotlight setup).
+      # Apply: home-manager switch --flake .#pxndxs@ubuntu-mac
+      "pxndxs@ubuntu-mac" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        extraSpecialArgs = {inherit inputs outputs;};
+        modules = [./hosts/ubuntu-mac/home.nix];
       };
     };
   };

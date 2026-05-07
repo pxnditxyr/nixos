@@ -1,5 +1,35 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 {
+  # Bootstrap untracked local identity files on every switch.
+  # Idempotent: only writes stub if file is absent. User fills in real
+  # name/email once; subsequent switches leave the file alone.
+  home.activation.gitLocalIdentityBootstrap =
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      ID_DIR="$HOME/.config/git/local"
+      run mkdir -p "$ID_DIR"
+      run chmod 700 "$ID_DIR"
+
+      if [ ! -e "$ID_DIR/identity-personal" ]; then
+        run cat > "$ID_DIR/identity-personal" <<'EOF'
+      # Personal git identity — edit me. Not tracked by Nix or git.
+      [user]
+          # name = Your Name
+          # email = you@example.com
+      EOF
+        run chmod 600 "$ID_DIR/identity-personal"
+      fi
+
+      if [ ! -e "$ID_DIR/identity-work" ]; then
+        run cat > "$ID_DIR/identity-work" <<'EOF'
+      # Work git identity — edit me. Not tracked by Nix or git.
+      [user]
+          # name = Your Work Name
+          # email = work@example.com
+      EOF
+        run chmod 600 "$ID_DIR/identity-work"
+      fi
+    '';
+
   programs.git = {
     enable = true;
 
@@ -90,10 +120,9 @@
         show-files = "show --name-only";
       };
 
-      user = {
-        name = "Pxndxs 🐼";
-        email = "pxnditxyr@gmail.com";
-      };
+      # user.name / user.email intentionally NOT set here — credentials
+      # live in untracked local files loaded via the `includes` directive
+      # below. Keeps the public Nix repo free of personal identity data.
 
       init.defaultBranch = "main";
 
@@ -180,6 +209,18 @@
         manyFiles = true;  # Optimiza para repos grandes
       };
     };
+
+    # Identity loading via untracked local files.
+    # Default identity (personal) loads everywhere; work identity overrides
+    # only inside ~/workspace/ via the conditional include.
+    # See README for the one-time setup of these files.
+    includes = [
+      { path = "~/.config/git/local/identity-personal"; }
+      {
+        condition = "gitdir:~/workspace/";
+        path = "~/.config/git/local/identity-work";
+      }
+    ];
 
     # Ignores globales
     ignores = [

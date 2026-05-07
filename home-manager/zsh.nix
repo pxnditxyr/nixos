@@ -195,8 +195,8 @@
       # fnm - Fast Node Manager
       eval "$(fnm env --use-on-cd --shell zsh)"
 
-      # zoxide - smarter cd command (use 'z' instead of 'cd')
-      eval "$(zoxide init zsh)"
+      # zoxide init handled by ../home-manager/shell-integrations.nix
+      # (programs.zoxide.enableZshIntegration = true)
     '';
   };
 }
