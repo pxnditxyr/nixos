@@ -14,6 +14,8 @@
     procs        # Better ps - modern process viewer
     sd           # Better sed - simpler find & replace
     yazi         # Terminal file manager
+    playerctl    # Media key controls (XF86AudioNext/Prev/Play/Pause)
+    qalculate-qt # Provides qalc CLI used by Hyprland rofi calculator script
     nh           # nix-helper - modern wrapper for nixos-rebuild / home-manager with diffs
   ];
 }

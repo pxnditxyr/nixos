@@ -46,6 +46,7 @@
 
   # Enable the Pantheon Desktop Environment.
   services.displayManager.sddm.enable = true;
+  services.displayManager.defaultSession = "hyprland";
   # services.xserver.displayManager.lightdm.enable = true;
 
 
@@ -60,6 +61,7 @@
   };
 
   services.gnome.gnome-keyring.enable = lib.mkForce false;
+  services.dbus.implementation = "dbus";
 
   hardware = {
     graphics = {
@@ -68,6 +70,7 @@
     };
 
     nvidia = {
+      package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
       open = false;
       modesetting.enable = true;
       nvidiaSettings = true;
@@ -114,6 +117,7 @@
   programs.hyprland = {
     enable = true;
     xwayland.enable = true;
+    withUWSM = false;
   };
 
   programs.nix-ld.enable = true;
@@ -132,6 +136,7 @@
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
     auto-optimise-store = true;
+    trusted-users = [ "root" "@wheel" ];
   };
   nix.gc = {
     automatic = true;
@@ -152,15 +157,13 @@
     xclip
     wl-clipboard
 
-    brave
-
     flameshot
 
     wofi
     networkmanagerapplet
     eww
     dunst
-    swww
+    awww
     libnotify
     # ( waybar.overrideAttrs ( oldAttrs: {
     #     mesonFlags = oldAttrs.mesonFlags ++ [ "-Dexperimental=true" ];
@@ -179,6 +182,9 @@
 
     android-studio
     vicinae
+
+    zenity
+    openssl
   ];
 
 
@@ -199,13 +205,6 @@
   # virtualisation.virtualbox.host.enable = true;
   # virtualisation.virtualbox.host.enableExtensionPack = true;
 
-
-  nix = {
-    settings = {
-      experimental-features = [ "flakes" "nix-command" ];
-      trusted-users = [ "root" "@wheel" ];
-    };
-  };
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;

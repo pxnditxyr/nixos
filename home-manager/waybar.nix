@@ -1,4 +1,44 @@
-{
+{ pkgs, ... }:
+let
+  powerMenuScript = pkgs.writeShellScript "waybar-power-menu" ''
+    set -eu
+
+    if command -v wlogout >/dev/null 2>&1; then
+      exec wlogout
+    fi
+
+    if command -v rofi >/dev/null 2>&1; then
+      choice="$(printf '%s\n' \
+        '⏻ Apagar' \
+        ' Reiniciar' \
+        '󰌾 Cerrar sesión' \
+        '󰤄 Suspender' \
+        ' Bloquear' \
+        | rofi -dmenu -i -p 'Power')"
+
+      case "$choice" in
+        '⏻ Apagar') exec systemctl poweroff ;;
+        ' Reiniciar') exec systemctl reboot ;;
+        '󰌾 Cerrar sesión')
+          if command -v hyprctl >/dev/null 2>&1; then
+            exec hyprctl dispatch exit
+          fi
+          ;;
+        '󰤄 Suspender') exec systemctl suspend ;;
+        ' Bloquear')
+          if command -v hyprlock >/dev/null 2>&1; then
+            exec hyprlock
+          else
+            exec loginctl lock-session
+          fi
+          ;;
+      esac
+      exit 0
+    fi
+
+    exec systemctl poweroff
+  '';
+in {
   programs.waybar = {
     enable = true;
     settings = {
@@ -29,6 +69,8 @@
           "network"
           "custom/separator"
           "wireplumber"
+          "tray"
+          "custom/power"
         ];
 
         "hyprland/workspaces" = {
@@ -75,17 +117,20 @@
         };
 
         "hyprland/window" = {
+          icon = true;
+          icon-size = 16;
+          format = "{}";
+          max-length = 120;
           rewrite = {
-            "(.*) - Brave" = "🦁 - $1";
-            "^v\\s.*" = " Neovim";
-            "^~(.*)" = "  ~$1";
+            "(.*) - Brave" = "$1";
+            "^v\\s.*" = "Neovim";
+            "^~(.*)" = "~$1";
           };
           separate-outputs = true;
         };
 
         network = {
           interval = 1;
-          interface = "enp5s0";
           format-ethernet = "  {bandwidthTotalBytes:>3}  ";
           format-wifi = "  {bandwidthTotalBytes:>3}  ";
           tooltip-format-wifi = "{ipaddr} ({signalStrength}%) ";
@@ -95,11 +140,7 @@
           format-alt = "{ifname} = {ipaddr}/{cidr}";
         };
 
-        "custom/separator" = {
-          format = "{icon}";
-          format-icons = "";
-          tooltip = false;
-        };
+
 
         # clock = {
         #   format = "{:%H:%M}  ";
@@ -121,17 +162,29 @@
 
         clock = {
           interval = 60;
-          format = "  {:%a %b %d  %I:%M %p}"; # %b %d %Y  --Date formatting
+          format = "  {:%a %b %d  %I:%M %p}";
           tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
           format-alt = "{:%Y-%m-%d %H:%M:%S  }";
-        };
-
-        actions = {
-          on-click-right = "mode";
-          on-click-forward = "tz_up";
-          on-click-backward = "tz_down";
-          on-scroll-up = "shift_up";
-          on-scroll-down = "shift_down";
+          calendar = {
+            mode = "year";
+            mode-mon-col = 3;
+            weeks-pos = "right";
+            on-scroll = 1;
+            format = {
+              months = "<span color='#ffead3'><b>{}</b></span>";
+              days = "<span color='#ecc6d9'><b>{}</b></span>";
+              weeks = "<span color='#99ffdd'><b>W{}</b></span>";
+              weekdays = "<span color='#ffcc66'><b>{}</b></span>";
+              today = "<span color='#ff6699'><b><u>{}</u></b></span>";
+            };
+          };
+          actions = {
+            on-click-right = "mode";
+            on-click-forward = "tz_up";
+            on-click-backward = "tz_down";
+            on-scroll-up = "shift_up";
+            on-scroll-down = "shift_down";
+          };
         };
         wireplumber = {
           format = "{volume}% {icon}";
@@ -146,6 +199,28 @@
             default = ["" ""];
           };
           format-bluetooth = "{volume}% {icon}";
+
+          scroll-step = 1;
+          on-click = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+          on-click-right = "pavucontrol";
+          on-scroll-up = "wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 1%+";
+          on-scroll-down = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%-";
+        };
+        "custom/separator" = {
+          format = "•";
+          tooltip = false;
+        };
+
+        "custom/power" = {
+          format = "⏻";
+          tooltip = true;
+          tooltip-format = "Power menu";
+          on-click = "${powerMenuScript}";
+        };
+
+        tray = {
+          icon-size = 21;
+          spacing = 10;
         };
       };
     };
@@ -165,11 +240,12 @@
     }
 
     tooltip {
-      background: #1e1e2e;
+      background: rgba(30, 30, 46, 0.95);
       border-radius: 10px;
       border-width: 2px;
       border-style: solid;
-      border-color: #11111b;
+      border-color: #cba6f7;
+      box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
     }
 
     #workspaces button {
@@ -209,19 +285,42 @@
     #memory,
     #cpu,
     #wireplumber,
-    #custom-separator,
+    #custom-power,
     #backlight {
       background: #1e1e2e;
-      padding: 5px 20px;
+      padding: 5px 16px;
       margin: 3px 0px;
       margin-top: 10px;
       border: 1px solid #181825;
       border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    #clock:hover,
+    #network:hover,
+    #tray:hover,
+    #memory:hover,
+    #cpu:hover,
+    #wireplumber:hover,
+    #custom-power:hover,
+    #backlight:hover {
+      background: #313244;
+      border: 1px solid #cba6f7;
     }
 
     #tray {
       border-radius: 10px;
-      margin-right: 5px;
+      margin-right: 0px;
+    }
+
+    #custom-separator {
+      color: #6c7086;
+      background: transparent;
+      border: none;
+      padding: 0 6px;
+      margin: 0;
+      margin-top: 10px;
+      min-width: 0;
     }
 
     #workspaces {
@@ -234,51 +333,59 @@
 
     #window {
       border-radius: 10px;
-      margin-left: 60px;
-      margin-right: 60px;
+      margin-left: 14px;
+      margin-right: 14px;
+    }
+
+    #custom-power {
+      color: #f38ba8;
+      margin-right: 10px;
+      min-width: 24px;
+      font-size: 19px;
     }
 
     #clock {
       color: #fab387;
-      border-radius: 10px 10px 10px 10px;
-      margin-left: 5px;
       margin-right: 10px;
-      border-right: 0px;
     }
 
-    #network
-    {
+    #network {
       color: #f9e2af;
-      border-left: 0px;
-      border-right: 0px;
     }
-
 
     #cpu {
       color: #f38ba8;
-      border-radius: 10px 0px 0px 10px;
-      border-right: 0px;
       margin-left: 10px;
     }
 
     #pulseaudio.microphone {
       color: #cba6f7;
-      margin-right: 0px;
-      border-radius: 0 10px 10px 0;
     }
 
     #memory {
       color: #a6e3a1;
-      border-radius: 0 10px 10px 0;
-      border-left: 0px;
     }
 
     #wireplumber {
       color: #f5c2e7;
-      border-left: 0px;
-      border-right: 0px;
-      border-radius: 10px 0 0 10px;
       margin-right: 10px;
+    }
+
+    #network.disconnected {
+      background: #f38ba8;
+      color: #11111b;
+      animation-name: blink;
+      animation-duration: 0.5s;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+      animation-direction: alternate;
+    }
+
+    @keyframes blink {
+      to {
+        background-color: #f38ba8;
+        color: #11111b;
+      }
     }
     '';
   };

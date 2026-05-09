@@ -29,7 +29,31 @@
     ...
   } @ inputs: let
     inherit (self) outputs;
+    systems = [ "x86_64-linux" ];
+    forAllSystems = nixpkgs.lib.genAttrs systems;
   in {
+    packages = forAllSystems (system: let
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+      };
+      pkg = pkgs.callPackage ./pkgs/brave-nightly { };
+    in {
+      "brave-nightly" = pkg;
+      default = pkg;
+    });
+
+    apps = forAllSystems (system: let
+      pkg = self.packages.${system}."brave-nightly";
+      app = {
+        type = "app";
+        program = "${pkg}/bin/brave-browser-nightly";
+      };
+    in {
+      "brave-nightly" = app;
+      default = app;
+    });
+
     # NixOS configuration entrypoint
     # Available through 'nixos-rebuild --flake .#your-hostname'
     nixosConfigurations = {
