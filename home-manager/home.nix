@@ -17,7 +17,6 @@
     ./packages.nix
     ./shell-integrations.nix
     ./brave-nightly.nix
-    ./chromium.nix
     ./direnv.nix
     ./fonts.nix
     ./git.nix
@@ -37,6 +36,7 @@
     overlays = [
       # If you want to use overlays exported from other flakes:
       # neovim-nightly-overlay.overlays.default
+      inputs.self.overlays.default
 
       # Or define it inline, for example:
       # (final: prev: {

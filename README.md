@@ -26,9 +26,13 @@ Single source of truth for shared modules; per-host profiles compose them.
 │   │   ├── dev.nix           #     pnpm, bun, fnm, deno, stripe-cli, pyngrok, rolldown
 │   │   └── gui.nix           #     warp-terminal, mangohud  (NixOS only)
 │   ├── shell-integrations.nix  # programs.{zoxide,fzf,bat,eza}.enable — binary + shell hook
-│   ├── chromium.nix · direnv.nix · fonts.nix · git.nix · jq.nix
+│   ├── brave-nightly.nix · direnv.nix · fonts.nix · git.nix · jq.nix
 │   ├── kitty.nix · neocats.nix · obs.nix · python.nix · zsh.nix
 │   └── hyprland.nix · waybar.nix · rofi.nix    # NixOS only (Wayland-bound or conflict)
+├── overlays/default.nix      # overrides pkgs.warp-terminal with local package
+├── pkgs/
+│   ├── brave-nightly/        # local Brave Nightly package
+│   └── warp-terminal/        # local Warp package + versions/update script
 └── hosts/
     └── ubuntu-mac/
         └── home.nix          # Ubuntu HM profile — imports curated subset
@@ -133,7 +137,7 @@ nix store gc
 | `hyprland.nix` | Wayland-only compositor; host is X11. |
 | `waybar.nix` | Hyprland status bar; gnome-panel owns top bar. |
 | `rofi.nix` | Would clobber `~/.config/rofi/whitesur.rasi` (Spotlight, hand-tuned). |
-| `chromium.nix` | apt provides Brave Nightly. |
+| `brave-nightly.nix` | apt provides Brave Nightly. |
 | `kitty.nix` | apt provides Warp Terminal. |
 | `obs.nix` | Install via apt if/when needed. |
 | `packages/gui.nix` | warp-terminal, mangohud — apt or unused. |

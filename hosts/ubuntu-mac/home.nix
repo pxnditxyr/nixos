@@ -8,7 +8,7 @@
 #
 #   GUI applications (apt provides equivalents, no need to duplicate):
 #     • packages/gui.nix   — warp-terminal, mangohud
-#     • chromium.nix       — apt provides Brave Nightly
+#     • brave-nightly.nix  — apt provides Brave Nightly
 #     • kitty.nix          — apt-installed Warp covers terminal needs
 #     • obs.nix            — install OBS via apt if/when needed
 #

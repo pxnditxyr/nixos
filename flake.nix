@@ -31,16 +31,24 @@
     inherit (self) outputs;
     systems = [ "x86_64-linux" ];
     forAllSystems = nixpkgs.lib.genAttrs systems;
+    overlay = import ./overlays/default.nix;
   in {
+    overlays = {
+      default = overlay;
+      warp-terminal = overlay;
+    };
+
     packages = forAllSystems (system: let
       pkgs = import nixpkgs {
         inherit system;
+        overlays = [ overlay ];
         config.allowUnfree = true;
       };
-      pkg = pkgs.callPackage ./pkgs/brave-nightly { };
+      bravePkg = pkgs.callPackage ./pkgs/brave-nightly { };
     in {
-      "brave-nightly" = pkg;
-      default = pkg;
+      "brave-nightly" = bravePkg;
+      "warp-terminal" = pkgs.warp-terminal;
+      default = bravePkg;
     });
 
     apps = forAllSystems (system: let
