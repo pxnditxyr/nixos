@@ -6,6 +6,8 @@
     enable = true;
     enableDefaultConfig = false;
 
+    includes = [ "~/.ssh/config.local" ];
+
     matchBlocks = {
       "*" = {
         addKeysToAgent = "yes";
@@ -18,18 +20,6 @@
         controlMaster = "no";
         controlPath = "~/.ssh/master-%r@%n:%p";
         controlPersist = "no";
-      };
-
-      "github.com" = {
-        user = "git";
-        identityFile = "~/.ssh/id_ed25519_personal";
-        identitiesOnly = true;
-      };
-
-      "gitlab.com" = {
-        user = "git";
-        identityFile = "~/.ssh/id_ed25519_work";
-        identitiesOnly = true;
       };
     };
   };

@@ -201,19 +201,15 @@
 
       # Help settings
       help = {
-        autocorrect = 10;  # Auto-corrige comandos después de 1 segundo
+        autocorrect = 10;
       };
 
       # Performance
       feature = {
-        manyFiles = true;  # Optimiza para repos grandes
+        manyFiles = true;
       };
     };
 
-    # Identity loading via untracked local files.
-    # Default identity (personal) loads everywhere; work identity overrides
-    # only inside ~/workspace/ via the conditional include.
-    # See README for the one-time setup of these files.
     includes = [
       { path = "~/.config/git/local/identity-personal"; }
       {
@@ -222,7 +218,6 @@
       }
     ];
 
-    # Ignores globales
     ignores = [
       # OS files
       ".DS_Store"
