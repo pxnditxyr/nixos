@@ -1,4 +1,55 @@
-{ pkgs, config, ... }:
+{ pkgs, config, lib, platform, username ? "pxndxs", ... }:
+let
+  # Single platform-aware clipboard helper. Darwin → pbcopy. Linux → dispatch
+  # between wl-copy (Wayland session) and xclip (X11 fallback) at runtime.
+  copyChar = text:
+    if platform.isDarwin then
+      ''echo -n "${text}" | pbcopy''
+    else ''
+      if [[ $WAYLAND_DISPLAY && $WAYLAND_DISPLAY != "wayland-0" ]]; then
+        echo -n "${text}" | wl-copy
+      else
+        echo -n "${text}" | xclip -selection clipboard
+      fi
+    '';
+
+  baseAliases = {
+    l  = "eza -la --icons --group-directories-first --git";
+    ll = "eza -l --icons --group-directories-first --git";
+    lt = "eza -laT --icons --group-directories-first --git --level=2";
+    ls = "eza --icons --group-directories-first";
+
+    confnix = "cd ~/.config/nixos";
+    confvim = "cd ~/workspace/neocats";
+
+    cat  = "bat --style=auto";
+    find = "fd";
+
+    "57" = copyChar "6";
+    nn   = copyChar "ñ";
+    aa   = copyChar "á";
+    ee   = copyChar "é";
+    ii   = copyChar "í";
+    oo   = copyChar "ó";
+    uu   = copyChar "ú";
+    v    = "neocats";
+  };
+
+  linuxAliases = {
+    update     = "sudo nixos-rebuild switch --flake .#pxndxs";
+    updatehome = "home-manager switch --flake .#pxndxs@pxndxs";
+    confhyp    = "cd ~/.config/hypr";
+  };
+
+  # HM-standalone on macOS — both aliases run the same switch. `-b backup`
+  # mirrors the documented bootstrap flow for the non-NixOS profile.
+  # The profile name follows the injected `username`, so the same module
+  # produces correct aliases on every Mac (pxndxs@mac, shipedge@mac, ...).
+  darwinAliases = {
+    update     = "home-manager switch --flake .#${username}@mac -b backup";
+    updatehome = "home-manager switch --flake .#${username}@mac -b backup";
+  };
+in
 {
   home.packages = [ pkgs.zsh ];
   programs.zsh = {
@@ -14,73 +65,9 @@
       ];
     };
 
-    shellAliases = {
-      l = "eza -la --icons --group-directories-first --git";
-      ll = "eza -l --icons --group-directories-first --git";
-      lt = "eza -laT --icons --group-directories-first --git --level=2";
-      ls = "eza --icons --group-directories-first";
-
-      update = "sudo nixos-rebuild switch --flake .#pxndxs";
-      updatehome = "home-manager switch --flake .#pxndxs@pxndxs";
-
-      confnix = "cd ~/.config/nixos";
-      confvim = "cd ~/workspace/neocats";
-      confhyp = "cd ~/.config/hypr";
-
-      cat = "bat --style=auto";
-      find = "fd";
-
-      "57" = ''
-        if [[ $WAYLAND_DISPLAY && $WAYLAND_DISPLAY != "wayland-0" ]]; then
-          echo -n "6" | wl-copy
-        else
-          echo -n "6" | xclip -selection clipboard
-        fi
-      '';
-      nn = ''
-        if [[ $WAYLAND_DISPLAY && $WAYLAND_DISPLAY != "wayland-0" ]]; then
-          echo -n "ñ" | wl-copy
-        else
-          echo -n "ñ" | xclip -selection clipboard
-        fi
-      '';
-      aa = ''
-        if [[ $WAYLAND_DISPLAY && $WAYLAND_DISPLAY != "wayland-0" ]]; then
-          echo -n "á" | wl-copy
-        else
-          echo -n "á" | xclip -selection clipboard
-        fi
-      '';
-      ee = ''
-        if [[ $WAYLAND_DISPLAY && $WAYLAND_DISPLAY != "wayland-0" ]]; then
-          echo -n "é" | wl-copy
-        else
-          echo -n "é" | xclip -selection clipboard
-        fi
-      '';
-      ii = ''
-        if [[ $WAYLAND_DISPLAY && $WAYLAND_DISPLAY != "wayland-0" ]]; then
-          echo -n "í" | wl-copy
-        else
-          echo -n "í" | xclip -selection clipboard
-        fi
-      '';
-      oo = ''
-        if [[ $WAYLAND_DISPLAY && $WAYLAND_DISPLAY != "wayland-0" ]]; then
-          echo -n "ó" | wl-copy
-        else
-          echo -n "ó" | xclip -selection clipboard
-        fi
-      '';
-      uu = ''
-        if [[ $WAYLAND_DISPLAY && $WAYLAND_DISPLAY != "wayland-0" ]]; then
-          echo -n "ú" | wl-copy
-        else
-          echo -n "ú" | xclip -selection clipboard
-        fi
-      '';
-      v = "neocats";
-    };
+    shellAliases = baseAliases // (
+      if platform.isDarwin then darwinAliases else linuxAliases
+    );
 
     history = {
       size = 10000;
@@ -96,7 +83,7 @@
 
       function git_branch_name () {
         color_git="#FFED00";
-        icon_git=" "
+        icon_git=" "
         branch=$(git symbolic-ref HEAD 2> /dev/null | awk 'BEGIN{FS="/"} {print $NF}')
         local output=""
         if [[ $branch == "" ]]; then
@@ -110,7 +97,7 @@
       function git_status_summary_xd () {
         # Define icons
         icon_add="󱝹"
-        icon_change=""
+        icon_change=""
         icon_delete="󱂧"
         icon_push="󱖉"
         icon_untracked="󱛑"
@@ -184,10 +171,10 @@
 
       PROMPT="🐼 "
       PROMPT+="%F{$NAME_COLOR}%n ";
-      PROMPT+="%F{$FIRST_PAW_COLOR}  ";
+      PROMPT+="%F{$FIRST_PAW_COLOR}  ";
       PROMPT+="%F{$DIR_COLOR}%~ ";
       PROMPT+='$(git_branch_name)$(git_status_summary_xd)';
-      PROMPT+="%F{$SECOND_PAW_COLOR}  %f";
+      PROMPT+="%F{$SECOND_PAW_COLOR}  %f";
 
       # setting for take in account / like a word separator in delete word
       WORDCHARS="";
@@ -199,4 +186,5 @@
       # (programs.zoxide.enableZshIntegration = true)
     '';
   };
+  home.sessionPath = [ "$HOME/.local/bin" ];
 }

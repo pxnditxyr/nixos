@@ -1,5 +1,6 @@
-# This is your home-manager configuration file
-# Use this to configure your home environment (it replaces ~/.config/nixpkgs/home.nix)
+# Canonical NixOS Home Manager profile (Hyprland / Wayland desktop).
+# Per-platform values (homeDirectory, the `platform` arg) come from
+# ./platform.nix; per-bucket package lists come from ./packages.nix.
 {
   inputs,
   lib,
@@ -7,13 +8,8 @@
   pkgs,
   ...
 }: {
-  # You can import other home-manager modules here
   imports = [
-    # If you want to use home-manager modules from other flakes (such as nix-colors):
-    # inputs.nix-colors.homeManagerModule
-
-    # You can also split up your configuration and import pieces of it here:
-    # ./nvim.nix
+    ./platform.nix
     ./packages.nix
     ./shell-integrations.nix
     ./brave-nightly.nix
@@ -32,22 +28,10 @@
   ];
 
   nixpkgs = {
-    # You can add overlays here
     overlays = [
-      # If you want to use overlays exported from other flakes:
-      # neovim-nightly-overlay.overlays.default
       inputs.self.overlays.default
-
-      # Or define it inline, for example:
-      # (final: prev: {
-      #   hi = final.hello.overrideAttrs (oldAttrs: {
-      #     patches = [ ./change-hello-to-hi.patch ];
-      #   });
-      # })
     ];
-    # Configure your nixpkgs instance
     config = {
-      # Disable if you don't want unfree packages
       allowUnfree = true;
       # Workaround for https://github.com/nix-community/home-manager/issues/2942
       allowUnfreePredicate = _: true;
@@ -56,7 +40,7 @@
 
   home = {
     username = "pxndxs";
-    homeDirectory = "/home/pxndxs";
+    # homeDirectory derived in ./platform.nix
   };
 
   # User-package list lives in ./packages.nix so it is shared by every host
@@ -68,10 +52,6 @@
 
   # Nicely reload system units when changing configs
   systemd.user.startServices = "sd-switch";
-
-  home.sessionVariables = {
-    NIXOS_OZONE_WL = "1";
-  };
 
   # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
   home.stateVersion = "25.11";

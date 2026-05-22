@@ -1,5 +1,7 @@
 # packages/cli-modern.nix — modern (mostly Rust/Go) CLI replacements
 # for the classic POSIX tools. Universally useful regardless of host.
+# Strictly OS-pure — Linux-only entries (playerctl, qalculate-qt) live in
+# cli-modern-linux.nix.
 { pkgs, ... }: {
   # Tools needing only a binary go here.
   # bat / eza / zoxide / fzf are wired up via programs.* in
@@ -14,8 +16,6 @@
     procs        # Better ps - modern process viewer
     sd           # Better sed - simpler find & replace
     yazi         # Terminal file manager
-    playerctl    # Media key controls (XF86AudioNext/Prev/Play/Pause)
-    qalculate-qt # Provides qalc CLI used by Hyprland rofi calculator script
     nh           # nix-helper - modern wrapper for nixos-rebuild / home-manager with diffs
   ];
 }

@@ -30,9 +30,15 @@
   ...
 }: {
   imports = [
-    # Curated package subset (no GUI apps)
+    # Platform abstraction (sets homeDirectory + exposes `platform`)
+    ../../home-manager/platform.nix
+
+    # Curated package subset (no GUI apps). Includes the Linux-only siblings
+    # because this host is Linux.
     ../../home-manager/packages/core.nix
+    ../../home-manager/packages/core-linux.nix
     ../../home-manager/packages/cli-modern.nix
+    ../../home-manager/packages/cli-modern-linux.nix
     ../../home-manager/packages/dev.nix
 
     # Shell hooks (zoxide / fzf / bat / eza — binary + init together)
@@ -58,7 +64,7 @@
 
   home = {
     username = "pxndxs";
-    homeDirectory = "/home/pxndxs";
+    # homeDirectory derived in ../../home-manager/platform.nix
     # Keep in lock-step with the canonical profile.
     stateVersion = "25.11";
   };

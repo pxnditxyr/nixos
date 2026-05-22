@@ -1,5 +1,6 @@
 # packages/core.nix — foundational shell utilities every host needs.
-# Network tools, archive tools, build essentials, X11 clipboard.
+# Network tools, archive tools, build essentials. Strictly OS-pure: anything
+# that only builds (or only makes sense) on Linux lives in core-linux.nix.
 # Also pulls SSH client config (multi-account routing) since SSH is
 # foundational; landing here means every host that imports core gets it.
 { pkgs, ... }: {
@@ -11,8 +12,6 @@
     zip
     unzip
     unrar
-    xclip
-    clang_multi
     gnumake42
   ];
 }
