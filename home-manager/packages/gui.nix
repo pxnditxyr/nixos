@@ -4,7 +4,8 @@
 # in the canonical NixOS profile only.
 { pkgs, ... }: {
   home.packages = with pkgs; [
-    warp-terminal   # AI-augmented terminal (Electron-based GUI)
-    mangohud        # In-game performance overlay (GUI/Vulkan layer)
+    warp-terminal       # AI-augmented terminal (Electron-based GUI)
+    mangohud            # In-game performance overlay (GUI/Vulkan layer)
+    karere              # WhatsApp client (GTK4)
   ];
 }

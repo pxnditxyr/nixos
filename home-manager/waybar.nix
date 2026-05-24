@@ -1,5 +1,27 @@
 { pkgs, ... }:
 let
+  kbLayoutScript = pkgs.writeShellScript "waybar-kb-layout" ''
+    set -eu
+    variant="$(${pkgs.xorg.setxkbmap}/bin/setxkbmap -display "''${DISPLAY:-:0}" -query 2>/dev/null \
+      | ${pkgs.gnugrep}/bin/grep -E '^variant:' | ${pkgs.gawk}/bin/awk '{print $2}')"
+    case "$variant" in
+      dvorak) echo "DV" ;;
+      *)      echo "US" ;;
+    esac
+  '';
+
+  kbToggleScript = pkgs.writeShellScript "waybar-kb-toggle" ''
+    set -eu
+    variant="$(${pkgs.xorg.setxkbmap}/bin/setxkbmap -display "''${DISPLAY:-:0}" -query 2>/dev/null \
+      | ${pkgs.gnugrep}/bin/grep -E '^variant:' | ${pkgs.gawk}/bin/awk '{print $2}')"
+    if [ "$variant" = "dvorak" ]; then
+      ${pkgs.xorg.setxkbmap}/bin/setxkbmap -display "''${DISPLAY:-:0}" us
+    else
+      ${pkgs.xorg.setxkbmap}/bin/setxkbmap -display "''${DISPLAY:-:0}" us dvorak
+    fi
+    ${pkgs.procps}/bin/pkill -RTMIN+10 waybar || true
+  '';
+
   powerMenuScript = pkgs.writeShellScript "waybar-power-menu" ''
     set -eu
 
@@ -67,6 +89,8 @@ in {
           "memory"
           "custom/separator"
           "network"
+          "custom/separator"
+          "custom/kblayout"
           "custom/separator"
           "wireplumber"
           "tray"
@@ -211,6 +235,16 @@ in {
           tooltip = false;
         };
 
+        "custom/kblayout" = {
+          format = "{}";
+          exec = "${kbLayoutScript}";
+          interval = 2;
+          signal = 10;
+          tooltip = true;
+          tooltip-format = "Click: toggle US ↔ Dvorak";
+          on-click = "${kbToggleScript}";
+        };
+
         "custom/power" = {
           format = "⏻";
           tooltip = true;
@@ -285,6 +319,7 @@ in {
     #memory,
     #cpu,
     #wireplumber,
+    #custom-kblayout,
     #custom-power,
     #backlight {
       background: #1e1e2e;
@@ -302,6 +337,7 @@ in {
     #memory:hover,
     #cpu:hover,
     #wireplumber:hover,
+    #custom-kblayout:hover,
     #custom-power:hover,
     #backlight:hover {
       background: #313244;
@@ -369,6 +405,10 @@ in {
     #wireplumber {
       color: #f5c2e7;
       margin-right: 10px;
+    }
+
+    #custom-kblayout {
+      color: #94e2d5;
     }
 
     #network.disconnected {

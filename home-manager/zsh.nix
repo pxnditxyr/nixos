@@ -75,6 +75,11 @@ in
     };
 
     initContent = ''
+      if [ -f "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ]; then
+        unset __HM_SESS_VARS_SOURCED
+        source "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
+      fi
+
       # colors
       NAME_COLOR='#00FFC6';
       FIRST_PAW_COLOR='#85EF47';
