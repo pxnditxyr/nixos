@@ -14,7 +14,6 @@
     ./packages.nix
     ./shell-integrations.nix
     ./brave-nightly.nix
-    ./claude-desktop.nix
     ./direnv.nix
     ./fonts.nix
     ./git.nix

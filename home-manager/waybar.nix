@@ -2,7 +2,7 @@
 let
   kbLayoutScript = pkgs.writeShellScript "waybar-kb-layout" ''
     set -eu
-    variant="$(${pkgs.xorg.setxkbmap}/bin/setxkbmap -display "''${DISPLAY:-:0}" -query 2>/dev/null \
+    variant="$(${pkgs.setxkbmap}/bin/setxkbmap -display "''${DISPLAY:-:0}" -query 2>/dev/null \
       | ${pkgs.gnugrep}/bin/grep -E '^variant:' | ${pkgs.gawk}/bin/awk '{print $2}')"
     case "$variant" in
       dvorak) echo "DV" ;;
@@ -12,12 +12,12 @@ let
 
   kbToggleScript = pkgs.writeShellScript "waybar-kb-toggle" ''
     set -eu
-    variant="$(${pkgs.xorg.setxkbmap}/bin/setxkbmap -display "''${DISPLAY:-:0}" -query 2>/dev/null \
+    variant="$(${pkgs.setxkbmap}/bin/setxkbmap -display "''${DISPLAY:-:0}" -query 2>/dev/null \
       | ${pkgs.gnugrep}/bin/grep -E '^variant:' | ${pkgs.gawk}/bin/awk '{print $2}')"
     if [ "$variant" = "dvorak" ]; then
-      ${pkgs.xorg.setxkbmap}/bin/setxkbmap -display "''${DISPLAY:-:0}" us
+      ${pkgs.setxkbmap}/bin/setxkbmap -display "''${DISPLAY:-:0}" us
     else
-      ${pkgs.xorg.setxkbmap}/bin/setxkbmap -display "''${DISPLAY:-:0}" us dvorak
+      ${pkgs.setxkbmap}/bin/setxkbmap -display "''${DISPLAY:-:0}" us dvorak
     fi
     ${pkgs.procps}/bin/pkill -RTMIN+10 waybar || true
   '';

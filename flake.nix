@@ -21,8 +21,6 @@
     # NeoCats Pxndxs 🐼 my neovim configuration
     neocats.url = "github:pxnditxyr/neocats";
 
-    # Claude Desktop (Linux-only; referenced only by the NixOS profile).
-    claude-for-linux.url = "github:heytcass/claude-for-linux";
   };
 
   outputs = {
