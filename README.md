@@ -12,6 +12,55 @@ Single source of truth for shared modules; per-host profiles compose them. The t
 
 ---
 
+## Prerequisites
+
+Install these once per machine before applying any profile.
+
+### 1 — Install Nix
+
+**macOS & Ubuntu** — use the Determinate Systems installer (recommended; supports flakes out of the box):
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+```
+
+Or the official multi-user installer:
+
+```bash
+sh <(curl -L https://nixos.org/nix/install) --daemon
+```
+
+Verify: `nix --version` (expect `nix (Nix) 2.x`).
+
+### 2 — Enable flakes (if not using Determinate installer)
+
+```bash
+mkdir -p ~/.config/nix
+echo 'experimental-features = nix-command flakes' >> ~/.config/nix/nix.conf
+```
+
+### 3 — Clone this repo
+
+```bash
+git clone git@github.com:pxnditxyr/nixos.git ~/.config/nixos
+```
+
+### NixOS only
+
+NixOS ships with Nix. Enable flakes in `/etc/nixos/configuration.nix`:
+
+```nix
+nix.settings.experimental-features = [ "nix-command" "flakes" ];
+```
+
+Then apply the system config once (it re-enables flakes and takes over from there):
+
+```bash
+sudo nixos-rebuild switch --flake ~/.config/nixos#pxndxs
+```
+
+---
+
 ## Layout
 
 ```
@@ -20,6 +69,8 @@ Single source of truth for shared modules; per-host profiles compose them. The t
 ├── nixos/                    # NixOS-only system config (configuration.nix, hardware-configuration.nix)
 ├── home-manager/             # shared HM modules (canonical home.nix lives here)
 │   ├── home.nix              #   canonical NixOS HM profile (imports all)
+│   ├── cli-base.nix          #   shared CLI-only base for mac + ubuntu profiles
+│   ├── nixpkgs-config.nix    #   shared nixpkgs policy (allowUnfree) — all profiles
 │   ├── platform.nix          #   _module.args.platform + derives homeDirectory from username × OS
 │   ├── packages.nix          #   aggregator: imports packages/* including gui
 │   ├── packages/
@@ -27,10 +78,10 @@ Single source of truth for shared modules; per-host profiles compose them. The t
 │   │   ├── core-linux.nix       #  xclip, clang_multi                                (Linux-only)
 │   │   ├── cli-modern.nix       #  fd, ripgrep, tldr, dust, btop, procs, sd, yazi, nh (OS-pure)
 │   │   ├── cli-modern-linux.nix #  playerctl, qalculate-qt                           (Linux-only)
-│   │   ├── dev.nix              #  pnpm, bun, fnm, deno, stripe-cli, pyngrok, rolldown
-│   │   └── gui.nix              #  warp-terminal, mangohud                           (NixOS only)
+│   │   ├── dev.nix              #  pnpm, bun, fnm, deno, ngrok, stripe-cli, pyngrok, glab, rolldown
+│   │   └── gui.nix              #  warp-terminal, mangohud, karere                   (NixOS only)
 │   ├── shell-integrations.nix  # programs.{zoxide,fzf,bat,eza}.enable — binary + shell hook
-│   ├── brave-nightly.nix · direnv.nix · fonts.nix · git.nix · jq.nix
+│   ├── brave-nightly.nix · claude-desktop.nix · direnv.nix · fonts.nix · git.nix · jq.nix
 │   ├── kitty.nix · neocats.nix · obs.nix · python.nix · zsh.nix
 │   └── hyprland.nix · waybar.nix · rofi.nix    # NixOS only (Wayland-bound or conflict)
 ├── overlays/default.nix      # overrides pkgs.warp-terminal with local package
@@ -39,9 +90,9 @@ Single source of truth for shared modules; per-host profiles compose them. The t
 │   └── warp-terminal/        # local Warp package + versions/update script (Linux only)
 └── hosts/
     ├── ubuntu-mac/
-    │   └── home.nix          # Ubuntu HM profile — imports curated subset
+    │   └── home.nix          # Ubuntu HM profile — imports cli-base + linux siblings
     └── mac/
-        └── home.nix          # macOS HM profile — CLI-only; accepts injected `username`
+        └── home.nix          # macOS HM profile — imports cli-base; accepts injected `username`
 ```
 
 Add a package once in `home-manager/packages/<bucket>.nix` → propagates to every profile that imports that bucket.
@@ -50,52 +101,68 @@ Add a package once in `home-manager/packages/<bucket>.nix` → propagates to eve
 
 ## Apply
 
-### NixOS (canonical)
+### ❄️ NixOS (canonical)
 
 ```bash
-sudo nixos-rebuild switch --flake .#pxndxs
-home-manager switch --flake .#pxndxs@pxndxs
+sudo nixos-rebuild switch --flake ~/.config/nixos#pxndxs
+home-manager switch --flake ~/.config/nixos#pxndxs@pxndxs
 ```
 
-### Ubuntu / non-NixOS
+### 🐧 Ubuntu / non-NixOS
 
-Prereqs: Nix multi-user installed, flakes enabled (`~/.config/nix/nix.conf` → `experimental-features = nix-command flakes`).
+Complete step-by-step from a fresh Ubuntu install:
 
-```bash
-home-manager switch --flake $HOME/.config/nixos#pxndxs@ubuntu-mac -b backup
-```
+1. **Install Nix** (see [Prerequisites](#prerequisites)).
+2. **Enable flakes** (Determinate installer does this automatically; otherwise add to `~/.config/nix/nix.conf`).
+3. **Install `home-manager` CLI** (optional — you can skip this and use `nix run` instead):
+   ```bash
+   nix profile install home-manager/master
+   ```
+4. **Clone the repo**:
+   ```bash
+   git clone git@github.com:pxnditxyr/nixos.git ~/.config/nixos
+   ```
+5. **Apply**:
+   ```bash
+   home-manager switch --flake ~/.config/nixos#pxndxs@ubuntu-mac -b backup
+   ```
+   `-b backup` renames any pre-existing dotfile to `*.backup` instead of failing.
 
-`-b backup` renames any pre-existing dotfile to `*.backup` instead of failing.
+   First-time bootstrap (no `home-manager` binary yet):
+   ```bash
+   nix run home-manager/master -- switch --flake ~/.config/nixos#pxndxs@ubuntu-mac -b backup
+   ```
+6. **Confirm**: `echo $SHELL` → `/usr/bin/zsh`; `which fd ripgrep` → paths under `~/.nix-profile/`.
 
-First-time bootstrap (no `home-manager` binary yet):
+### 🍎 macOS (Apple Silicon, headless)
 
-```bash
-nix run home-manager/master -- switch --flake $HOME/.config/nixos#pxndxs@ubuntu-mac -b backup
-```
+Complete step-by-step from a fresh macOS install:
 
-### macOS (Apple Silicon, headless)
+1. **Install Nix** (see [Prerequisites](#prerequisites)). The Determinate installer handles flakes and daemon setup automatically.
+2. **Clone the repo** (repo lives at `~/.config/nixos`):
+   ```bash
+   mkdir -p ~/.config
+   git clone git@github.com:pxnditxyr/nixos.git ~/.config/nixos
+   ```
+3. **Apply** — pick the profile whose `username` matches the current Mac:
+   ```bash
+   # Personal Mac (user pxndxs)
+   home-manager switch --flake ~/.config/nixos#pxndxs@mac -b backup
 
-Same prereqs as Ubuntu (Nix multi-user + flakes enabled in `~/.config/nix/nix.conf`). Repo lives at `~/.config/nixos`. Pick the profile whose `username` matches the current Mac:
+   # Work Mac (user shipedge)
+   home-manager switch --flake ~/.config/nixos#shipedge@mac -b backup
+   ```
+   First-time bootstrap (no `home-manager` binary yet):
+   ```bash
+   nix run home-manager/master -- switch --flake ~/.config/nixos#<username>@mac -b backup
+   ```
+4. **Confirm**: `echo $SHELL` → `/bin/zsh` (macOS system zsh); `which fd ripgrep` → paths under `/Users/<username>/.nix-profile/`.
 
-```bash
-# Personal Mac (user pxndxs)
-home-manager switch --flake ~/.config/nixos#pxndxs@mac -b backup
-
-# Work Mac (user shipedge)
-home-manager switch --flake ~/.config/nixos#shipedge@mac -b backup
-```
-
-First-time bootstrap (no `home-manager` binary yet):
-
-```bash
-nix run home-manager/master -- switch --flake ~/.config/nixos#<username>@mac -b backup
-```
+> **GUI apps** (Warp, Brave, OBS, Raycast, …) are **not** managed by this flake on macOS — install them via Homebrew casks or the App Store.
 
 #### Identity injection
 
 Both Mac profiles share `hosts/mac/home.nix`. The flake passes a per-profile `username` through `extraSpecialArgs`; `hosts/mac/home.nix` sets `home.username = username` and `home-manager/platform.nix` derives `home.homeDirectory = "/Users/${username}"`. Add a new Mac by appending one block to `flake.nix#homeConfigurations`.
-
-GUI apps (Warp, Brave, OBS, Raycast, …) are intentionally **not** managed by this flake on macOS — install them via Homebrew casks or the App Store.
 
 ---
 
@@ -160,6 +227,34 @@ nix store gc
 
 ---
 
+## Troubleshooting
+
+**`error: experimental Nix feature 'flakes' is disabled`**
+Add `experimental-features = nix-command flakes` to `~/.config/nix/nix.conf` (non-NixOS) or to `nix.settings.experimental-features` in `configuration.nix` (NixOS). Restart the Nix daemon: `sudo systemctl restart nix-daemon` (Linux) or `sudo launchctl kickstart -k system/org.nixos.nix-daemon` (macOS).
+
+**`home-manager: command not found`**
+Skip the binary and run directly:
+```bash
+nix run home-manager/master -- switch --flake .#<username>@<host> -b backup
+```
+
+**`error: ... is marked as broken`** or **`unfree package`**
+The `nixpkgs-config.nix` module sets `allowUnfree = true`. If you see this, verify the module is imported (check with `home-manager edit` or `nix flake check`).
+
+**`git add` after adding a new file**
+Nix flakes only evaluate tracked files. If `nix flake check` or `home-manager switch` silently ignores a new `.nix` file, run `git add <file>` first.
+
+**NVIDIA / Hyprland — session not in SDDM login screen**
+Run `sudo nixos-rebuild switch --flake .#pxndxs` to install the system-level `programs.hyprland` config. The HM profile alone does not register the Wayland session with the display manager.
+
+**`error: collision between ... ngrok`**
+`packages/dev.nix` wraps `ngrok` in `lib.hiPrio` to resolve the `bin/ngrok` collision with `pyngrok`. If you see this error on a fresh eval, ensure you are using a lockfile with the current `nixpkgs` revision (`git pull && nix flake update`).
+
+**Home Manager switch fails with conflict on existing dotfile**
+Pass `-b backup`: `home-manager switch --flake .#<profile> -b backup`. This renames conflicting files to `*.backup` instead of aborting.
+
+---
+
 ## Excluded from `pxndxs@ubuntu-mac` and why
 
 | Module | Reason |
@@ -170,7 +265,7 @@ nix store gc
 | `brave-nightly.nix` | apt provides Brave Nightly. |
 | `kitty.nix` | apt provides Warp Terminal. |
 | `obs.nix` | Install via apt if/when needed. |
-| `packages/gui.nix` | warp-terminal, mangohud — apt or unused. |
+| `packages/gui.nix` | warp-terminal, mangohud, karere — apt or unused. |
 
 Restore any of these by adding the import back to `hosts/ubuntu-mac/home.nix`.
 
@@ -183,9 +278,9 @@ Strict CLI-only profile. Anything that ships a GUI, depends on a Linux composito
 | Module / bucket | Reason |
 |---|---|
 | `hyprland.nix`, `waybar.nix`, `rofi.nix` | Wayland / X11 stack; no compositor on macOS. |
-| `brave-nightly.nix`, `kitty.nix`, `obs.nix` | GUI apps — install via Homebrew cask. |
+| `brave-nightly.nix`, `claude-desktop.nix`, `kitty.nix`, `obs.nix` | GUI apps — install via Homebrew cask. |
 | `chromium.nix` *(if reintroduced)* | `programs.chromium` HM module is Linux-bound. |
-| `packages/gui.nix` | `warp-terminal`, `mangohud` — Linux GUI / Vulkan. |
+| `packages/gui.nix` | `warp-terminal`, `mangohud`, `karere` — Linux GUI / Vulkan / Wayland. |
 | `packages/core-linux.nix` | `xclip` (X11), `clang_multi` (Linux multilib). |
 | `packages/cli-modern-linux.nix` | `playerctl` (MPRIS/D-Bus), `qalculate-qt` (Qt). |
 
