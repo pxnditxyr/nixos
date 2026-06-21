@@ -1,4 +1,4 @@
-{ pkgs, config, lib, platform, username ? "pxndxs", ... }:
+{ pkgs, config, lib, platform, ... }:
 let
   # Single platform-aware clipboard helper. Darwin → pbcopy. Linux → dispatch
   # between wl-copy (Wayland session) and xclip (X11 fallback) at runtime.
@@ -35,19 +35,11 @@ let
     v    = "neocats";
   };
 
+  # `update` / `updatehome` are now shell FUNCTIONS (see initContent) — they
+  # auto-detect host/OS/user at runtime and accept an optional explicit profile.
+  # Only the Linux-only directory shortcut remains an alias here.
   linuxAliases = {
-    update     = "sudo nixos-rebuild switch --flake .#pxndxs";
-    updatehome = "home-manager switch --flake .#pxndxs@pxndxs";
-    confhyp    = "cd ~/.config/hypr";
-  };
-
-  # HM-standalone on macOS — both aliases run the same switch. `-b backup`
-  # mirrors the documented bootstrap flow for the non-NixOS profile.
-  # The profile name follows the injected `username`, so the same module
-  # produces correct aliases on every Mac (pxndxs@mac, shipedge@mac, ...).
-  darwinAliases = {
-    update     = "home-manager switch --flake .#${username}@mac -b backup";
-    updatehome = "home-manager switch --flake .#${username}@mac -b backup";
+    confhyp = "cd ~/.config/hypr";
   };
 in
 {
@@ -65,9 +57,7 @@ in
       ];
     };
 
-    shellAliases = baseAliases // (
-      if platform.isDarwin then darwinAliases else linuxAliases
-    );
+    shellAliases = baseAliases // lib.optionalAttrs (!platform.isDarwin) linuxAliases;
 
     history = {
       size = 10000;
@@ -183,6 +173,74 @@ in
 
       # setting for take in account / like a word separator in delete word
       WORDCHARS="";
+
+      # ── Nix rebuild helpers ─────────────────────────────────────────────
+      # update     → SYSTEM layer (nixos-rebuild), NixOS only
+      # updatehome → USER layer (home-manager), all platforms
+      # Strictly separate; never chained. Both auto-detect host/OS/user and
+      # accept an optional explicit profile argument. nixprofiles lists keys.
+      typeset -g _NIX_FLAKE="$HOME/.config/nixos"
+      typeset -g _NIX_PROFILE_CACHE="''${XDG_CACHE_HOME:-$HOME/.cache}/nix-home-profiles"
+
+      # True only on NixOS — hostname-independent (reads /etc/os-release ID).
+      function _is_nixos() {
+        [[ -r /etc/os-release ]] && grep -q '^ID=nixos' /etc/os-release
+      }
+
+      # Auto-derive the home-manager flake profile key for THIS environment.
+      #   macOS       → $USER@mac
+      #   NixOS       → $USER@<hostname>   (declarative hostname → matches key)
+      #   other Linux → $USER@ubuntu-mac   (fixed; NO hostname match required)
+      function _hm_profile() {
+        if [[ "$OSTYPE" == darwin* ]]; then
+          echo "''${USER}@mac"
+        elif _is_nixos; then
+          echo "''${USER}@$(hostname -s)"
+        else
+          echo "''${USER}@ubuntu-mac"
+        fi
+      }
+
+      # List homeConfigurations keys. Cached; refreshes when flake.lock changes
+      # or on `nixprofiles --refresh`. Avoids a ~1-2s nix eval on every switch.
+      function nixprofiles() {
+        local lock="''${_NIX_FLAKE}/flake.lock"
+        if [[ "$1" == "--refresh" || ! -s "$_NIX_PROFILE_CACHE" || "$lock" -nt "$_NIX_PROFILE_CACHE" ]]; then
+          mkdir -p "''${_NIX_PROFILE_CACHE:h}"
+          nix eval "''${_NIX_FLAKE}#homeConfigurations" \
+            --apply 'builtins.attrNames' --json 2>/dev/null \
+            | tr -d '[]"' | tr ',' '\n' > "$_NIX_PROFILE_CACHE"
+        fi
+        cat "$_NIX_PROFILE_CACHE"
+      }
+
+      # USER layer only. Optional positional arg = explicit profile; default =
+      # auto-detected. Validated against real flake keys. Never chained.
+      function updatehome() {
+        local profile="''${1:-$(_hm_profile)}"
+        if ! nixprofiles | grep -qx "$profile"; then
+          echo "❌ unknown profile '$profile'" >&2
+          echo "valid: $(nixprofiles | paste -sd, -)" >&2
+          return 1
+        fi
+        echo "🏠 home-manager switch → #''${profile}"
+        home-manager switch --flake "''${_NIX_FLAKE}#''${profile}" -b backup
+      }
+
+      # SYSTEM layer only (nixos-rebuild). NixOS exclusively.
+      # Optional positional arg = explicit host; default = current hostname.
+      function update() {
+        if ! _is_nixos; then
+          echo "❌ update: nixos-rebuild is NixOS-only. Use 'updatehome' for the user layer." >&2
+          return 1
+        fi
+        local host="''${1:-$(hostname -s)}"
+        echo "❄️  nixos-rebuild switch → #''${host}"
+        sudo nixos-rebuild switch --flake "''${_NIX_FLAKE}#''${host}"
+      }
+
+      # Tab-completion: `updatehome <TAB>` → flake profile keys.
+      compdef '_values "profile" $(nixprofiles 2>/dev/null)' updatehome
 
       # fnm - Fast Node Manager
       eval "$(fnm env --use-on-cd --shell zsh)"

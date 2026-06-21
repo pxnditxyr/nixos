@@ -8,19 +8,20 @@
 
     includes = [ "~/.ssh/config.local" ];
 
-    matchBlocks = {
-      "*" = {
-        addKeysToAgent = "yes";
-        forwardAgent = false;
-        compression = false;
-        serverAliveInterval = 0;
-        serverAliveCountMax = 3;
-        hashKnownHosts = false;
-        userKnownHostsFile = "~/.ssh/known_hosts";
-        controlMaster = "no";
-        controlPath = "~/.ssh/master-%r@%n:%p";
-        controlPersist = "no";
-      };
+    # Modern HM SSH API: programs.ssh.settings (DAG keyed by Host pattern,
+    # capitalized OpenSSH directive names). Replaces the deprecated
+    # programs.ssh.matchBlocks. Bools render as yes/no.
+    settings."*" = {
+      AddKeysToAgent      = "yes";
+      ForwardAgent        = false;
+      Compression         = false;
+      ServerAliveInterval = 0;
+      ServerAliveCountMax = 3;
+      HashKnownHosts      = false;
+      UserKnownHostsFile  = "~/.ssh/known_hosts";
+      ControlMaster       = "no";
+      ControlPath         = "~/.ssh/master-%r@%n:%p";
+      ControlPersist      = "no";
     };
   };
 }
