@@ -42,38 +42,14 @@
   ...
 }: {
   imports = [
-    # Platform abstraction (sets homeDirectory to /Users/<username> + exposes `platform`)
-    ../../home-manager/platform.nix
-
-    # Curated package subset — pure (OS-agnostic) buckets only.
-    ../../home-manager/packages/core.nix
-    ../../home-manager/packages/cli-modern.nix
-    ../../home-manager/packages/dev.nix
-
-    # Shell hooks (zoxide / fzf / bat / eza — binary + init together)
-    ../../home-manager/shell-integrations.nix
-
-    # CLI / TUI modules
-    ../../home-manager/direnv.nix
-    ../../home-manager/fonts.nix
-    ../../home-manager/git.nix
-    ../../home-manager/jq.nix
-    ../../home-manager/neocats.nix
-    ../../home-manager/python.nix
-    ../../home-manager/zsh.nix
+    # Shared CLI-only base (nixpkgs-config, platform, OS-pure packages, shell tools).
+    # Factored into cli-base.nix to avoid duplicating this list across host files.
+    ../../home-manager/cli-base.nix
   ];
-
-  nixpkgs = {
-    overlays = [];
-    config = {
-      allowUnfree = true;
-      allowUnfreePredicate = _: true;
-    };
-  };
 
   home = {
     inherit username;
-    # homeDirectory is derived in ../../home-manager/platform.nix
+    # homeDirectory is derived in ../../home-manager/platform.nix (via cli-base)
     # → /Users/${username} on macOS.
     stateVersion = "25.11";
   };

@@ -20,6 +20,9 @@
 
     # NeoCats Pxndxs 🐼 my neovim configuration
     neocats.url = "github:pxnditxyr/neocats";
+
+    # Claude Desktop (Linux-only; referenced only by the NixOS profile).
+    claude-for-linux.url = "github:heytcass/claude-for-linux";
   };
 
   outputs = {
@@ -34,8 +37,7 @@
     overlay = import ./overlays/default.nix;
   in {
     overlays = {
-      default = overlay;
-      warp-terminal = overlay;
+      default = overlay; # injects pkgs.warp-terminal (local build)
     };
 
     # Custom packages (brave-nightly, warp-terminal) are Linux-only.

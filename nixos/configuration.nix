@@ -147,15 +147,10 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    wget
-    curl
+    # wget, curl, zip, unzip, unrar, xclip — provided by HM packages/core*.nix;
+    # not duplicated here to keep one owner per package.
 
-    zip
-    unzip
-    unrar
-
-    xclip
-    wl-clipboard
+    wl-clipboard # system-level Wayland clipboard (needed pre-login / root)
 
     flameshot
 
@@ -165,11 +160,7 @@
     dunst
     awww
     libnotify
-    # ( waybar.overrideAttrs ( oldAttrs: {
-    #     mesonFlags = oldAttrs.mesonFlags ++ [ "-Dexperimental=true" ];
-    #   } )
-    # )
-    waybar
+    # waybar — owned by HM programs.waybar (home-manager/waybar.nix); not here.
 
     grim
     swappy

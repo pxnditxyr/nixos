@@ -1,6 +1,6 @@
 # packages/dev.nix — programming-language runtimes, package managers,
 # and developer-focused CLIs. CLI-only; nothing GUI.
-{ pkgs, ... }: {
+{ pkgs, lib, ... }: {
   home.packages = with pkgs; [
     # Node.js ecosystem
     # nodejs_22
@@ -18,7 +18,11 @@
 
     # Misc dev CLIs
     rPackages.rolldown          # R Markdown websites
-    python313Packages.pyngrok   # Python ngrok wrapper
+    # Real ngrok agent (unfree). hiPrio so its `bin/ngrok` wins the buildEnv
+    # collision against pyngrok's bundled `bin/ngrok`. Use: `ngrok http <port>`.
+    (lib.hiPrio ngrok)
+    python313Packages.pyngrok   # Python ngrok wrapper/lib (keeps its python module)
     stripe-cli                  # Stripe API CLI
+    glab                        # GitLab CLI — manage/unstick MRs from the terminal
   ];
 }

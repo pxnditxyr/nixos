@@ -30,42 +30,18 @@
   ...
 }: {
   imports = [
-    # Platform abstraction (sets homeDirectory + exposes `platform`)
-    ../../home-manager/platform.nix
+    # Shared CLI-only base (nixpkgs-config, platform, OS-pure packages, shell tools).
+    # linux siblings are added below because this host is Linux.
+    ../../home-manager/cli-base.nix
 
-    # Curated package subset (no GUI apps). Includes the Linux-only siblings
-    # because this host is Linux.
-    ../../home-manager/packages/core.nix
-    ../../home-manager/packages/core-linux.nix
-    ../../home-manager/packages/cli-modern.nix
-    ../../home-manager/packages/cli-modern-linux.nix
-    ../../home-manager/packages/dev.nix
-
-    # Shell hooks (zoxide / fzf / bat / eza — binary + init together)
-    ../../home-manager/shell-integrations.nix
-
-    # CLI/TUI modules
-    ../../home-manager/direnv.nix
-    ../../home-manager/fonts.nix
-    ../../home-manager/git.nix
-    ../../home-manager/jq.nix
-    ../../home-manager/neocats.nix
-    ../../home-manager/python.nix
-    ../../home-manager/zsh.nix
+    # Linux-only package siblings (not included in cli-base; absent on macOS).
+    ../../home-manager/packages/core-linux.nix       # xclip, clang_multi
+    ../../home-manager/packages/cli-modern-linux.nix # playerctl, qalculate-qt
   ];
-
-  nixpkgs = {
-    overlays = [];
-    config = {
-      allowUnfree = true;
-      allowUnfreePredicate = _: true;
-    };
-  };
 
   home = {
     username = "pxndxs";
-    # homeDirectory derived in ../../home-manager/platform.nix
-    # Keep in lock-step with the canonical profile.
+    # homeDirectory derived in ../../home-manager/platform.nix (via cli-base)
     stateVersion = "25.11";
   };
 

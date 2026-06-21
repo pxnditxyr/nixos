@@ -9,10 +9,12 @@
   ...
 }: {
   imports = [
+    ./nixpkgs-config.nix
     ./platform.nix
     ./packages.nix
     ./shell-integrations.nix
     ./brave-nightly.nix
+    ./claude-desktop.nix
     ./direnv.nix
     ./fonts.nix
     ./git.nix
@@ -27,16 +29,11 @@
     ./rofi.nix
   ];
 
-  nixpkgs = {
-    overlays = [
-      inputs.self.overlays.default
-    ];
-    config = {
-      allowUnfree = true;
-      # Workaround for https://github.com/nix-community/home-manager/issues/2942
-      allowUnfreePredicate = _: true;
-    };
-  };
+  # NixOS canonical: apply warp-terminal overlay in addition to shared
+  # nixpkgs.config (allowUnfree) from ./nixpkgs-config.nix above.
+  nixpkgs.overlays = [
+    inputs.self.overlays.default
+  ];
 
   home = {
     username = "pxndxs";

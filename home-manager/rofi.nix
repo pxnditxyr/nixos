@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 
 {
   programs.rofi = {
@@ -15,7 +15,7 @@
       show-icons: true;
       icon-theme: "Papirus";
       drun-display-format: "{name}";
-      cache-dir: "/home/pxndxs/.cache/rofi";
+      cache-dir: "${config.home.homeDirectory}/.cache/rofi";
       display-drun: " ";
       display-run: "🐼 ";
       display-emoji: " ";
