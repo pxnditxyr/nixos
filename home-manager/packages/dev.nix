@@ -24,5 +24,6 @@
     python313Packages.pyngrok   # Python ngrok wrapper/lib (keeps its python module)
     stripe-cli                  # Stripe API CLI
     glab                        # GitLab CLI — manage/unstick MRs from the terminal
+    gh                          # GitHub CLI — manage PRs/issues from the terminal
   ];
 }
