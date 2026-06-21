@@ -240,7 +240,14 @@ in
       }
 
       # Tab-completion: `updatehome <TAB>` → flake profile keys.
-      compdef '_values "profile" $(nixprofiles 2>/dev/null)' updatehome
+      # NOTE: works in real-zsh terminals (Terminal.app, kitty, ghostty).
+      # Warp uses its own completion engine and may ignore this.
+      function _updatehome() {
+        local -a profiles
+        profiles=(''${(f)"$(nixprofiles 2>/dev/null)"})
+        compadd -a profiles
+      }
+      compdef _updatehome updatehome
 
       # fnm - Fast Node Manager
       eval "$(fnm env --use-on-cd --shell zsh)"
