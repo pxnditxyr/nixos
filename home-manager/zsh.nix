@@ -1,7 +1,5 @@
 { pkgs, config, lib, platform, ... }:
 let
-  # Single platform-aware clipboard helper. Darwin → pbcopy. Linux → dispatch
-  # between wl-copy (Wayland session) and xclip (X11 fallback) at runtime.
   copyChar = text:
     if platform.isDarwin then
       ''echo -n "${text}" | pbcopy''
@@ -35,9 +33,6 @@ let
     v    = "neocats";
   };
 
-  # `update` / `updatehome` are now shell FUNCTIONS (see initContent) — they
-  # auto-detect host/OS/user at runtime and accept an optional explicit profile.
-  # Only the Linux-only directory shortcut remains an alias here.
   linuxAliases = {
     confhyp = "cd ~/.config/hypr";
   };
@@ -65,6 +60,14 @@ in
     };
 
     initContent = ''
+      # macOS resets /etc/zshrc on every OS update, wiping whatever shell
+      # integration the Nix installer put there. Source nix-daemon.sh
+      # directly from our own (user-owned, update-proof) .zshrc instead of
+      # depending on /etc/zshrc surviving reboots.
+      if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+        . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+      fi
+
       if [ -f "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ]; then
         unset __HM_SESS_VARS_SOURCED
         source "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
@@ -239,9 +242,7 @@ in
         sudo nixos-rebuild switch --flake "''${_NIX_FLAKE}#''${host}"
       }
 
-      # Tab-completion: `updatehome <TAB>` → flake profile keys.
-      # NOTE: works in real-zsh terminals (Terminal.app, kitty, ghostty).
-      # Warp uses its own completion engine and may ignore this.
+
       function _updatehome() {
         local -a profiles
         profiles=(''${(f)"$(nixprofiles 2>/dev/null)"})
@@ -252,8 +253,11 @@ in
       # fnm - Fast Node Manager
       eval "$(fnm env --use-on-cd --shell zsh)"
 
-      # zoxide init handled by ../home-manager/shell-integrations.nix
-      # (programs.zoxide.enableZshIntegration = true)
+      typeset -U path
+      for _dir in $HOME/.*/bin(N/); do
+        path+=("$_dir")
+      done
+      unset _dir
     '';
   };
   home.sessionPath = [ "$HOME/.local/bin" ];
