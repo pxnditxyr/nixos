@@ -4,7 +4,7 @@
   home.sessionVariables.NIXOS_OZONE_WL = "1";
 
   xdg.configFile = {
-    "hypr/hyprland.conf".source = ./hypr/hyprland.conf;
+    "hypr/hyprland.lua".source = ./hypr/hyprland.lua;
     "hypr/scripts" = {
       source = ./hypr/scripts;
       recursive = true;

@@ -46,7 +46,7 @@
 
   # Enable the Pantheon Desktop Environment.
   services.displayManager.sddm.enable = true;
-  services.displayManager.defaultSession = "hyprland";
+  services.displayManager.defaultSession = "hyprland-uwsm";
   # services.xserver.displayManager.lightdm.enable = true;
 
 
@@ -61,7 +61,6 @@
   };
 
   services.gnome.gnome-keyring.enable = lib.mkForce false;
-  services.dbus.implementation = "dbus";
 
   hardware = {
     graphics = {
@@ -117,7 +116,7 @@
   programs.hyprland = {
     enable = true;
     xwayland.enable = true;
-    withUWSM = false;
+    withUWSM = true;
   };
 
   programs.nix-ld.enable = true;
