@@ -8,6 +8,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      ./sddm.nix
     ];
 
   # Bootloader.
@@ -45,7 +46,6 @@
   # Enable the X11 windowing system.
 
   # Enable the Pantheon Desktop Environment.
-  services.displayManager.sddm.enable = true;
   services.displayManager.defaultSession = "hyprland-uwsm";
   # services.xserver.displayManager.lightdm.enable = true;
 
