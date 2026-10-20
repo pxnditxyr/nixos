@@ -1,11 +1,6 @@
-# Shared nixpkgs policy for all home-manager profiles.
-# Imported by cli-base.nix (mac/ubuntu) and by home.nix (NixOS canonical).
-# Overlays are NOT set here — they are profile-specific (NixOS uses the
-# warp-terminal overlay; mac/ubuntu use none).
+# Shared nixpkgs policy for all home-manager profiles (via cli-base.nix).
+# HM re-imports nixpkgs with this config, so allowUnfree is enough; the old
+# allowUnfreePredicate workaround (HM #2942) was fixed in HM 23.11 (#4304).
 { ... }: {
-  nixpkgs.config = {
-    allowUnfree = true;
-    # Workaround for https://github.com/nix-community/home-manager/issues/2942
-    allowUnfreePredicate = _: true;
-  };
+  nixpkgs.config.allowUnfree = true;
 }

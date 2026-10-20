@@ -1,24 +1,20 @@
 { pkgs, ... }:
 let
+  # Keyboard layout via Hyprland (layouts "us,us" / variants "dvorak," in
+  # hypr/modules/input.lua). setxkbmap only touched XWayland's keymap.
   kbLayoutScript = pkgs.writeShellScript "waybar-kb-layout" ''
     set -eu
-    variant="$(${pkgs.setxkbmap}/bin/setxkbmap -display "''${DISPLAY:-:0}" -query 2>/dev/null \
-      | ${pkgs.gnugrep}/bin/grep -E '^variant:' | ${pkgs.gawk}/bin/awk '{print $2}')"
-    case "$variant" in
-      dvorak) echo "DV" ;;
-      *)      echo "US" ;;
+    keymap="$(hyprctl devices -j \
+      | ${pkgs.jq}/bin/jq -r '[.keyboards[] | select(.main)][0].active_keymap // ""')"
+    case "$keymap" in
+      *Dvorak*) echo "DV" ;;
+      *)        echo "US" ;;
     esac
   '';
 
   kbToggleScript = pkgs.writeShellScript "waybar-kb-toggle" ''
     set -eu
-    variant="$(${pkgs.setxkbmap}/bin/setxkbmap -display "''${DISPLAY:-:0}" -query 2>/dev/null \
-      | ${pkgs.gnugrep}/bin/grep -E '^variant:' | ${pkgs.gawk}/bin/awk '{print $2}')"
-    if [ "$variant" = "dvorak" ]; then
-      ${pkgs.setxkbmap}/bin/setxkbmap -display "''${DISPLAY:-:0}" us
-    else
-      ${pkgs.setxkbmap}/bin/setxkbmap -display "''${DISPLAY:-:0}" us dvorak
-    fi
+    hyprctl switchxkblayout all next >/dev/null
     ${pkgs.procps}/bin/pkill -RTMIN+10 waybar || true
   '';
 
@@ -43,7 +39,7 @@ let
         ' Reiniciar') exec systemctl reboot ;;
         '󰌾 Cerrar sesión')
           if command -v hyprctl >/dev/null 2>&1; then
-            exec hyprctl dispatch exit
+            exec hyprctl dispatch 'hl.dsp.exit()'
           fi
           ;;
         '󰤄 Suspender') exec systemctl suspend ;;
@@ -69,7 +65,6 @@ in {
         position = "top";
         height = 0;
         exclusive = true;
-        passtrough = false;
         gtk-layer-shell = true;
         spacing = 1;
         reload_style_on_change = true;
@@ -131,7 +126,7 @@ in {
           interval = 1;
           format = "{usage}% ";
           tooltip = false;
-          on-click = "hyprctl dispatcher togglespecialworkspace monitor";
+          on-click = "kitty -e btop";
         };
 
         memory = {
@@ -320,8 +315,7 @@ in {
     #cpu,
     #wireplumber,
     #custom-kblayout,
-    #custom-power,
-    #backlight {
+    #custom-power {
       background: #1e1e2e;
       padding: 5px 16px;
       margin: 3px 0px;
@@ -338,8 +332,7 @@ in {
     #cpu:hover,
     #wireplumber:hover,
     #custom-kblayout:hover,
-    #custom-power:hover,
-    #backlight:hover {
+    #custom-power:hover {
       background: #313244;
       border: 1px solid #cba6f7;
     }
@@ -392,10 +385,6 @@ in {
     #cpu {
       color: #f38ba8;
       margin-left: 10px;
-    }
-
-    #pulseaudio.microphone {
-      color: #cba6f7;
     }
 
     #memory {

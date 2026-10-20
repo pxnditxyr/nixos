@@ -43,20 +43,18 @@
     LC_TIME = "es_BO.UTF-8";
   };
 
-  # Enable the X11 windowing system.
-
-  # Enable the Pantheon Desktop Environment.
+  # SDDM (themed in ./sddm.nix) → Hyprland via UWSM. The xserver block below
+  # only shapes the greeter (keymap, repeat) and loads the NVIDIA driver; the
+  # Hyprland session takes its keyboard settings from hypr/modules/input.lua.
   services.displayManager.defaultSession = "hyprland-uwsm";
-  # services.xserver.displayManager.lightdm.enable = true;
-
 
   services.xserver = {
     enable = true;
-    # desktopManager.pantheon.enable = true;
     xkb.layout = "us";
     xkb.variant = "dvorak";
     videoDrivers = [ "nvidia" ];
-    autoRepeatDelay = 200;
+    # Same as the Hyprland session (hypr/modules/input.lua: 400 ms, 25/s).
+    autoRepeatDelay = 400;
     autoRepeatInterval = 40;
   };
 
@@ -66,12 +64,17 @@
     graphics = {
       enable = true;
       enable32Bit = true;
+      # VA-API on NVIDIA (LIBVA_DRIVER_NAME=nvidia in hypr/modules/env.lua).
+      extraPackages = [ pkgs.nvidia-vaapi-driver ];
     };
 
     nvidia = {
       package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
       open = false;
       modesetting.enable = true;
+      # Saves VRAM across suspend; without it Wayland sessions often come
+      # back corrupted after resume.
+      powerManagement.enable = true;
       nvidiaSettings = true;
     };
   };
@@ -103,11 +106,8 @@
   users.users.pxndxs = {
     isNormalUser = true;
     description = "Pxndxs";
-    extraGroups = [ "networkmanager" "wheel" "docker" "stian" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" ];
     shell = pkgs.zsh;
-    packages = with pkgs; [
-    #  thunderbird
-    ];
   };
 
   # Install firefox.
@@ -122,8 +122,6 @@
   programs.nix-ld.enable = true;
   programs.nix-ld.libraries = with pkgs; [
     libatomic_ops
-
-    fnm
   ];
 
   # Allow unfree packages
@@ -131,16 +129,33 @@
     allowUnfree = true;
   };
 
-  # Nix daemon: flakes on, store deduplication on, weekly GC of >30d generations
+  # Nix daemon: flakes on (still experimental in upstream Nix) and the
+  # nix-community binary cache. (Hyprland comes from nixpkgs, so it is
+  # already in cache.nixos.org; no hyprland.cachix needed.)
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
-    auto-optimise-store = true;
     trusted-users = [ "root" "@wheel" ];
+    extra-substituters = [ "https://nix-community.cachix.org" ];
+    extra-trusted-public-keys = [
+      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+    ];
   };
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 30d";
+
+  # Store dedup on a timer instead of auto-optimise-store (which hardlinks
+  # during every build and slows them down).
+  nix.optimise.automatic = true;
+
+  # nh: nixos-rebuild/home-manager wrapper with diffs + nom output.
+  # clean replaces nix.gc (the module asserts they are not both enabled):
+  # weekly, keep generations newer than 30d and always the last 5.
+  programs.nh = {
+    enable = true;
+    flake = "/home/pxndxs/.config/nixos";
+    clean = {
+      enable = true;
+      dates = "weekly";
+      extraArgs = "--keep-since 30d --keep 5";
+    };
   };
 
   # List packages installed in system profile. To search, run:
@@ -151,12 +166,7 @@
 
     wl-clipboard # system-level Wayland clipboard (needed pre-login / root)
 
-    flameshot
-
-    wofi
     networkmanagerapplet
-    eww
-    dunst
     awww
     libnotify
     # waybar — owned by HM programs.waybar (home-manager/waybar.nix); not here.
@@ -185,11 +195,9 @@
 
   programs.gamemode.enable = true;
 
+  # programs.hyprland already adds xdg-desktop-portal-hyprland.
   xdg.portal.enable = true;
-  xdg.portal.extraPortals = [
-    pkgs.xdg-desktop-portal-gtk
-    pkgs.xdg-desktop-portal-hyprland
-  ];
+  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
 
   virtualisation.docker.enable = true;
   # virtualisation.virtualbox.host.enable = true;

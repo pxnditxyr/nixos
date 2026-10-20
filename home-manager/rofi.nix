@@ -1,26 +1,31 @@
 { pkgs, config, ... }:
 
+let
+  themeFile = "${config.xdg.configHome}/rofi/pxndxs.rasi";
+in
 {
+  # HM owns rofi/config.rasi (settings block + @theme); the look lives
+  # in its own file. Writing config.rasi by hand as well made HM append a
+  # second configuration block to it.
   programs.rofi = {
     enable = true;
-    package = pkgs.rofi;
-    plugins = [
-      pkgs.rofi-emoji
-    ];
+    plugins = [ pkgs.rofi-emoji ];
+    theme = themeFile;
+    settings = {
+      modi = "drun,run,emoji";
+      show-icons = true;
+      icon-theme = "Papirus";
+      drun-display-format = "{name}";
+      cache-dir = "${config.xdg.cacheHome}/rofi";
+      display-drun = " ";
+      display-run = "🐼 ";
+      display-emoji = " ";
+    };
   };
 
-  xdg.configFile."rofi/config.rasi".text = ''
-    configuration {
-      modi: "drun,run,emoji";
-      show-icons: true;
-      icon-theme: "Papirus";
-      drun-display-format: "{name}";
-      cache-dir: "${config.home.homeDirectory}/.cache/rofi";
-      display-drun: " ";
-      display-run: "🐼 ";
-      display-emoji: " ";
-    }
+  home.packages = [ pkgs.papirus-icon-theme ];
 
+  xdg.configFile."rofi/pxndxs.rasi".text = ''
     * {
         font:   "CaskaydiaCove Nerd Font 13";
 

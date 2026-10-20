@@ -17,11 +17,13 @@
     # rustc
 
     # Misc dev CLIs
-    rPackages.rolldown          # R Markdown websites
+    # rolldown: per project (`bunx rolldown` / devDependency). nixpkgs'
+    # `rolldown` is only the node library (no CLI) and `rPackages.rolldown`
+    # is an unrelated R package.
     # Real ngrok agent (unfree). hiPrio so its `bin/ngrok` wins the buildEnv
-    # collision against pyngrok's bundled `bin/ngrok`. Use: `ngrok http <port>`.
+    # collision against pyngrok's bundled `bin/ngrok` (pyngrok lives in the
+    # python env, ../python.nix). Use: `ngrok http <port>`.
     (lib.hiPrio ngrok)
-    python313Packages.pyngrok   # Python ngrok wrapper/lib (keeps its python module)
     stripe-cli                  # Stripe API CLI
     glab                        # GitLab CLI — manage/unstick MRs from the terminal
     gh                          # GitHub CLI — manage PRs/issues from the terminal

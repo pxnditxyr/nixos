@@ -2,7 +2,7 @@
 # for the classic POSIX tools. Universally useful regardless of host.
 # Strictly OS-pure — Linux-only entries (playerctl, qalculate-qt) live in
 # cli-modern-linux.nix.
-{ pkgs, ... }: {
+{ pkgs, config, ... }: {
   # Tools needing only a binary go here.
   # bat / eza / zoxide / fzf are wired up via programs.* in
   # ../shell-integrations.nix (binary + shell hook in one), so they are
@@ -16,6 +16,13 @@
     procs        # Better ps - modern process viewer
     sd           # Better sed - simpler find & replace
     yazi         # Terminal file manager
-    nh           # nix-helper - modern wrapper for nixos-rebuild / home-manager with diffs
   ];
+
+  # nh: nixos-rebuild / home-manager wrapper with diffs (used by hms/nrs/…).
+  # HM module instead of a bare package so NH_FLAKE points at this repo.
+  # Generation cleanup stays in NixOS programs.nh.clean / `nclean`.
+  programs.nh = {
+    enable = true;
+    flake = "${config.home.homeDirectory}/.config/nixos";
+  };
 }

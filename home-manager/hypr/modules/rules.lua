@@ -1,0 +1,21 @@
+-- Window and workspace rules.
+-- https://wiki.hypr.land/Configuring/Basics/Window-Rules/
+-- https://wiki.hypr.land/Configuring/Basics/Workspace-Rules/
+--
+-- None active yet. Examples (Lua syntax):
+--
+-- Ignore maximize requests from apps:
+-- hl.window_rule({
+--     name  = "suppress-maximize-events",
+--     match = { class = ".*" },
+--     suppress_event = "maximize",
+-- })
+--
+-- "Smart gaps" (no gaps with a single tiled window):
+-- hl.workspace_rule({ workspace = "w[tv1]", gaps_out = 0, gaps_in = 0 })
+-- hl.window_rule({
+--     name  = "no-gaps-wtv1",
+--     match = { float = false, workspace = "w[tv1]" },
+--     border_size = 0,
+--     rounding    = 0,
+-- })

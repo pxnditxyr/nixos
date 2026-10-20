@@ -15,6 +15,7 @@
     ./direnv.nix
     ./fonts.nix
     ./git.nix
+    ./ssh.nix
     ./jq.nix
     ./neocats.nix
     ./python.nix

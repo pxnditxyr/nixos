@@ -11,16 +11,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Hyprland (Linux-only; referenced only by the NixOS profile)
-    hyprland.url = "git+https://github.com/hyprwm/Hyprland?submodules=1";
-    hyprland-plugins = {
-      url = "github:hyprwm/hyprland-plugins";
-      inputs.hyprland.follows = "hyprland";
-    };
+    # Hyprland comes from nixpkgs (programs.hyprland), no flake input needed.
 
-    # NeoCats Pxndxs 🐼 my neovim configuration
+    # NeoCats Pxndxs 🐼 my neovim configuration. Keeps its own nixpkgs: with
+    # `inputs.nixpkgs.follows` its formatter (nixfmt-classic, removed from
+    # current nixpkgs) fails to evaluate. Revisit once neocats switches to nixfmt.
     neocats.url = "github:pxnditxyr/neocats";
-
   };
 
   outputs = {
@@ -29,18 +25,18 @@
     home-manager,
     ...
   } @ inputs: let
-    inherit (self) outputs;
     systems = [ "x86_64-linux" "aarch64-darwin" ];
     forAllSystems = nixpkgs.lib.genAttrs systems;
+    pkgsFor = system: nixpkgs.legacyPackages.${system};
     overlay = import ./overlays/default.nix;
   in {
     overlays = {
-      default = overlay; # injects pkgs.warp-terminal (local build)
+      default = overlay; # injects pkgs.warp-terminal (local build, newer than nixpkgs)
     };
 
     # Custom packages (brave-nightly, warp-terminal) are Linux-only.
-    # lib.optionalAttrs keeps the output attrset empty on darwin systems
-    # so `nix flake check` does not try to build them there.
+    # lib.optionalAttrs keeps the output attrset empty on darwin so
+    # `nix flake check` skips them.
     packages = forAllSystems (system: let
       pkgs = import nixpkgs {
         inherit system;
@@ -54,6 +50,26 @@
       "warp-terminal" = pkgs.warp-terminal;
       default = bravePkg;
     }));
+
+    # `nix fmt`
+    formatter = forAllSystems (system: (pkgsFor system).nixfmt);
+
+    # `nix develop`: Nix LSP + formatter + linters for editing this repo.
+    devShells = forAllSystems (system: let
+      pkgs = pkgsFor system;
+    in {
+      default = pkgs.mkShellNoCC {
+        packages = with pkgs; [ nixd nixfmt statix deadnix ];
+      };
+    });
+
+    # `nix flake check` builds every home-manager profile of this system
+    # (the NixOS one evaluates via nixosConfigurations).
+    checks = forAllSystems (system:
+      nixpkgs.lib.mapAttrs' (name: cfg:
+        nixpkgs.lib.nameValuePair "home-${builtins.replaceStrings [ "@" ] [ "-" ] name}" cfg.activationPackage)
+      (nixpkgs.lib.filterAttrs (_: cfg: cfg.pkgs.stdenv.hostPlatform.system == system)
+        self.homeConfigurations));
 
     apps = forAllSystems (system:
       if self.packages.${system} ? "brave-nightly"
@@ -74,7 +90,7 @@
     # Available through 'nixos-rebuild --flake .#your-hostname'
     nixosConfigurations = {
       pxndxs = nixpkgs.lib.nixosSystem {
-        specialArgs = {inherit inputs outputs;};
+        specialArgs = {inherit inputs;};
         # > Our main nixos configuration file <
         modules = [./nixos/configuration.nix];
       };
@@ -86,7 +102,7 @@
       # Canonical NixOS profile (Hyprland/Wayland desktop)
       "pxndxs@pxndxs" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
-        extraSpecialArgs = {inherit inputs outputs;};
+        extraSpecialArgs = {inherit inputs;};
         # > Our main home-manager configuration file <
         modules = [./home-manager/home.nix];
       };
@@ -97,7 +113,7 @@
       # Apply: home-manager switch --flake .#pxndxs@ubuntu-mac
       "pxndxs@ubuntu-mac" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        extraSpecialArgs = {inherit inputs outputs;};
+        extraSpecialArgs = {inherit inputs;};
         modules = [./hosts/ubuntu-mac/home.nix];
       };
 
@@ -110,7 +126,7 @@
       "pxndxs@mac" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.aarch64-darwin;
         extraSpecialArgs = {
-          inherit inputs outputs;
+          inherit inputs;
           username = "pxndxs";
         };
         modules = [./hosts/mac/home.nix];
@@ -119,7 +135,7 @@
       "shipedge@mac" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.aarch64-darwin;
         extraSpecialArgs = {
-          inherit inputs outputs;
+          inherit inputs;
           username = "shipedge";
         };
         modules = [./hosts/mac/home.nix];

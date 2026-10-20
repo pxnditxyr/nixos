@@ -1,32 +1,64 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib, config, ... }:
+let
+  # zsh shortcuts that run the git aliases below, overriding the omz git
+  # plugin's version where they differ (HM writes shellAliases after the
+  # plugins). Every other omz g* alias already does the same thing.
+  # Single source of truth: the `alias` attrset in programs.git.settings.
+  zshShortcuts = {
+    gst = "s";          # status -sb
+    glog = "l";         # oneline graph --all
+    glol = "ll";
+    glola = "lg";
+    glast = "last";
+    ghist = "history";
+    gdst = "ds";        # diff --stat (gds stays omz's diff --staged)
+    gpsf = "psf";       # push --force-with-lease
+    gundo = "undo";
+    gunstage = "unstage";
+    gbr = "branches";
+    gfind = "find";
+    galias = "alias";
+  };
+in
 {
+  assertions = lib.mapAttrsToList (short: alias: {
+    assertion = config.programs.git.settings.alias ? ${alias};
+    message = "git.nix: zsh shortcut `${short}` points to missing git alias `${alias}`.";
+  }) zshShortcuts;
+
+  programs.zsh.shellAliases = lib.mapAttrs (_: alias: "git ${alias}") zshShortcuts;
+
   # Bootstrap untracked local identity files on every switch.
-  # Idempotent: only writes stub if file is absent. User fills in real
+  # Idempotent: only writes a stub if the file is absent. User fills in real
   # name/email once; subsequent switches leave the file alone.
+  # Skipped on dry runs: HM's `run` only echoes there, but a `run cat > f`
+  # redirect would still create f (with the word "cat" in it).
   home.activation.gitLocalIdentityBootstrap =
     lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       ID_DIR="$HOME/.config/git/local"
-      run mkdir -p "$ID_DIR"
-      run chmod 700 "$ID_DIR"
+      if [[ -v DRY_RUN ]]; then
+        echo "gitLocalIdentityBootstrap: would create stubs in $ID_DIR if missing"
+      else
+        mkdir -p "$ID_DIR"
+        chmod 700 "$ID_DIR"
 
-      if [ ! -e "$ID_DIR/identity-personal" ]; then
-        run cat > "$ID_DIR/identity-personal" <<'EOF'
+        if [ ! -e "$ID_DIR/identity-personal" ]; then
+          install -m600 /dev/stdin "$ID_DIR/identity-personal" <<'EOF'
       # Personal git identity — edit me. Not tracked by Nix or git.
       [user]
           # name = Your Name
           # email = you@example.com
       EOF
-        run chmod 600 "$ID_DIR/identity-personal"
-      fi
+        fi
 
-      if [ ! -e "$ID_DIR/identity-work" ]; then
-        run cat > "$ID_DIR/identity-work" <<'EOF'
+        if [ ! -e "$ID_DIR/identity-work" ]; then
+          install -m600 /dev/stdin "$ID_DIR/identity-work" <<'EOF'
       # Work git identity — edit me. Not tracked by Nix or git.
       [user]
           # name = Your Work Name
           # email = work@example.com
       EOF
-        run chmod 600 "$ID_DIR/identity-work"
+        fi
       fi
     '';
 

@@ -65,26 +65,27 @@ sudo nixos-rebuild switch --flake ~/.config/nixos#pxndxs
 
 ```
 .
-├── flake.nix                 # inputs + nixosConfigurations + homeConfigurations
+├── flake.nix                 # inputs + nixosConfigurations + homeConfigurations + formatter/devShells/checks
 ├── nixos/                    # NixOS-only system config (configuration.nix, hardware-configuration.nix)
 ├── home-manager/             # shared HM modules (canonical home.nix lives here)
-│   ├── home.nix              #   canonical NixOS HM profile (imports all)
-│   ├── cli-base.nix          #   shared CLI-only base for mac + ubuntu profiles
+│   ├── home.nix              #   canonical NixOS HM profile: cli-base + Linux/GUI layer
+│   ├── cli-base.nix          #   shared CLI base for every profile (packages, shell, git, ssh, …)
 │   ├── nixpkgs-config.nix    #   shared nixpkgs policy (allowUnfree) — all profiles
 │   ├── platform.nix          #   _module.args.platform + derives homeDirectory from username × OS
-│   ├── packages.nix          #   aggregator: imports packages/* including gui
 │   ├── packages/
-│   │   ├── core.nix             #  wget, curl, zip, unzip, unrar, gnumake42         (OS-pure)
+│   │   ├── core.nix             #  wget, curl, zip, unzip, unrar, gnumake            (OS-pure)
 │   │   ├── core-linux.nix       #  xclip, clang_multi                                (Linux-only)
-│   │   ├── cli-modern.nix       #  fd, ripgrep, tldr, dust, btop, procs, sd, yazi, nh (OS-pure)
+│   │   ├── cli-modern.nix       #  fd, ripgrep, tldr, dust, btop, procs, sd, yazi + programs.nh (OS-pure)
 │   │   ├── cli-modern-linux.nix #  playerctl, qalculate-qt                           (Linux-only)
-│   │   ├── dev.nix              #  pnpm, bun, fnm, deno, ngrok, stripe-cli, pyngrok, glab, rolldown
+│   │   ├── dev.nix              #  pnpm, bun, fnm, deno, ngrok, stripe-cli, glab, gh
 │   │   └── gui.nix              #  warp-terminal, mangohud, karere                   (NixOS only)
-│   ├── shell-integrations.nix  # programs.{zoxide,fzf,bat,eza}.enable — binary + shell hook
-│   ├── brave-nightly.nix · claude-desktop.nix · direnv.nix · fonts.nix · git.nix · jq.nix
-│   ├── kitty.nix · neocats.nix · obs.nix · python.nix · zsh.nix
-│   └── hyprland.nix · waybar.nix · rofi.nix    # NixOS only (Wayland-bound or conflict)
-├── overlays/default.nix      # overrides pkgs.warp-terminal with local package
+│   ├── shell-integrations.nix  # programs.{zoxide,fzf,bat,eza,starship}.enable — binary + shell hook
+│   ├── zsh.nix + zsh/nix-helpers.zsh  # zsh config + rebuild helpers (hms, nrs, nfu, …) with a gum UI
+│   ├── git.nix · ssh.nix · direnv.nix · fonts.nix · jq.nix · neocats.nix · python.nix
+│   ├── brave-nightly.nix · kitty.nix · obs.nix                          # NixOS only (GUI)
+│   ├── hyprland.nix · waybar.nix · rofi.nix  # NixOS only (Wayland-bound or conflict)
+│   └── hypr/                 #   Hyprland Lua config: hyprland.lua + modules/*.lua, wallpapers
+├── overlays/default.nix      # overrides pkgs.warp-terminal with the local package
 ├── pkgs/
 │   ├── brave-nightly/        # local Brave Nightly package      (x86_64-linux only)
 │   └── warp-terminal/        # local Warp package + versions/update script (Linux only)
@@ -99,13 +100,34 @@ Add a package once in `home-manager/packages/<bucket>.nix` → propagates to eve
 
 ---
 
+## Daily use
+
+Shell helpers from `home-manager/zsh/nix-helpers.zsh` (wrap [nh](https://github.com/nix-community/nh)):
+
+| Command | Does |
+|---|---|
+| `hms [-p] [profile]` | home-manager switch (auto-detects the profile; `-p` opens a picker) |
+| `nrs [host]` | nixos-rebuild switch (NixOS only) |
+| `nfu [inputs…]` | `nix flake update` + table of what changed, then offers `hms` |
+| `nclean` | clean old generations (asks first, shows space freed) |
+| `nsearch [query]` | search nixpkgs |
+| `ngen [--system]` | pick a generation and activate it (rollback) |
+| `nixprofiles` | list the flake's home-manager profiles |
+| `nxhelp` | this list |
+
+`NO_COLOR=1` gives plain output; `NX_MOTION=0` disables animation; `NX_ICONS=0` drops Nerd Font icons.
+
+Repo tooling: `nix fmt` (nixfmt), `nix develop` (nixd, statix, deadnix), `nix flake check` (evaluates/builds the profiles of the current system).
+
+---
+
 ## Apply
 
 ### ❄️ NixOS (canonical)
 
 ```bash
-sudo nixos-rebuild switch --flake ~/.config/nixos#pxndxs
-home-manager switch --flake ~/.config/nixos#pxndxs@pxndxs
+sudo nixos-rebuild switch --flake ~/.config/nixos#pxndxs   # or: nrs
+home-manager switch --flake ~/.config/nixos#pxndxs@pxndxs  # or: hms
 ```
 
 ### 🐧 Ubuntu / non-NixOS
@@ -207,15 +229,15 @@ Picking the right one prevents duplicate installs and gets the `z`/`Ctrl+R`/alia
 1. Pick the bucket: `core` / `cli-modern` / `dev` / `gui` / `shell-integrations`. For Linux-only items use the `-linux.nix` sibling (`core-linux`, `cli-modern-linux`) so darwin profiles stay clean.
 2. Edit `home-manager/packages/<bucket>.nix` (or `shell-integrations.nix` if it has a program module).
 3. `git add` (Nix flakes only see tracked files).
-4. `home-manager switch --flake .#<username>@<host>`.
+4. `hms` (or `home-manager switch --flake .#<username>@<host>`).
 
 ---
 
 ## Rollback
 
 ```bash
-home-manager generations
-~/.local/state/nix/profiles/profile-N-link/activate     # roll back to gen N
+ngen            # pick a home-manager generation and activate it
+ngen --system   # NixOS: roll back the system generation
 ```
 
 Old generations stay until explicit GC:
@@ -248,7 +270,7 @@ Nix flakes only evaluate tracked files. If `nix flake check` or `home-manager sw
 Run `sudo nixos-rebuild switch --flake .#pxndxs` to install the system-level `programs.hyprland` config. The HM profile alone does not register the Wayland session with the display manager.
 
 **`error: collision between ... ngrok`**
-`packages/dev.nix` wraps `ngrok` in `lib.hiPrio` to resolve the `bin/ngrok` collision with `pyngrok`. If you see this error on a fresh eval, ensure you are using a lockfile with the current `nixpkgs` revision (`git pull && nix flake update`).
+`packages/dev.nix` wraps `ngrok` in `lib.hiPrio` to resolve the `bin/ngrok` collision with `pyngrok`. If you see this error on a fresh eval, ensure you are using a lockfile with the current `nixpkgs` revision (`git pull && nfu`).
 
 **Home Manager switch fails with conflict on existing dotfile**
 Pass `-b backup`: `home-manager switch --flake .#<profile> -b backup`. This renames conflicting files to `*.backup` instead of aborting.
@@ -263,7 +285,7 @@ Pass `-b backup`: `home-manager switch --flake .#<profile> -b backup`. This rena
 | `waybar.nix` | Hyprland status bar; gnome-panel owns top bar. |
 | `rofi.nix` | Would clobber `~/.config/rofi/whitesur.rasi` (Spotlight, hand-tuned). |
 | `brave-nightly.nix` | apt provides Brave Nightly. |
-| `kitty.nix` | apt provides Warp Terminal. |
+| `kitty.nix` | Terminal comes from apt (Warp). |
 | `obs.nix` | Install via apt if/when needed. |
 | `packages/gui.nix` | warp-terminal, mangohud, karere — apt or unused. |
 
@@ -278,7 +300,7 @@ Strict CLI-only profile. Anything that ships a GUI, depends on a Linux composito
 | Module / bucket | Reason |
 |---|---|
 | `hyprland.nix`, `waybar.nix`, `rofi.nix` | Wayland / X11 stack; no compositor on macOS. |
-| `brave-nightly.nix`, `claude-desktop.nix`, `kitty.nix`, `obs.nix` | GUI apps — install via Homebrew cask. |
+| `brave-nightly.nix`, `kitty.nix`, `obs.nix` | GUI apps — install via Homebrew cask. |
 | `chromium.nix` *(if reintroduced)* | `programs.chromium` HM module is Linux-bound. |
 | `packages/gui.nix` | `warp-terminal`, `mangohud`, `karere` — Linux GUI / Vulkan / Wayland. |
 | `packages/core-linux.nix` | `xclip` (X11), `clang_multi` (Linux multilib). |

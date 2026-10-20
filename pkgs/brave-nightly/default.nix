@@ -48,9 +48,6 @@
   coreutils,
   libxcb,
   zlib,
-  dpkg,
-  gnused,
-  gnugrep,
   xz,
   binutils,
 
@@ -82,10 +79,10 @@ let
   };
 
   archive =
-    if builtins.hasAttr stdenv.system allArchives then
-      allArchives.${stdenv.system}
+    if builtins.hasAttr stdenv.hostPlatform.system allArchives then
+      allArchives.${stdenv.hostPlatform.system}
     else
-      throw "brave-browser-nightly: unsupported platform ${stdenv.system} for GitHub .deb";
+      throw "brave-browser-nightly: unsupported platform ${stdenv.hostPlatform.system} for GitHub .deb";
 
   inherit (lib)
     optional
@@ -172,11 +169,8 @@ stdenv.mkDerivation {
   nativeBuildInputs = [
     # Needed for wrapGAppsHook3 splicing
     (buildPackages.wrapGAppsHook3.override { makeWrapper = buildPackages.makeShellWrapper; })
-    dpkg
-    gnused
-    gnugrep
-    xz
-    binutils
+    xz       # .deb data.tar.xz
+    binutils # ar
   ];
 
   buildInputs = [
