@@ -17,6 +17,9 @@
     # `inputs.nixpkgs.follows` its formatter (nixfmt-classic, removed from
     # current nixpkgs) fails to evaluate. Revisit once neocats switches to nixfmt.
     neocats.url = "github:pxnditxyr/neocats";
+
+    # neopanda 🐼 Neovim config.
+    neopanda.url = "github:pxnditxyr/neopanda";
   };
 
   outputs = {

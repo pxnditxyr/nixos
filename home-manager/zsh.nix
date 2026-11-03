@@ -30,7 +30,7 @@ let
     ii   = copyChar "í";
     oo   = copyChar "ó";
     uu   = copyChar "ú";
-    v    = "neocats";
+    v    = "npd";
   };
 
   linuxAliases = {

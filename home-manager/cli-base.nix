@@ -18,6 +18,7 @@
     ./ssh.nix
     ./jq.nix
     ./neocats.nix
+    ./neopanda.nix
     ./python.nix
     ./zsh.nix
   ];
