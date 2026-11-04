@@ -31,6 +31,7 @@ let
     oo   = copyChar "ó";
     uu   = copyChar "ú";
     v    = "npd";
+    vdev = "NEOPANDA_CONFIG=~/dev/neopanda npd"; # neopanda from the clone, to edit it live
   };
 
   linuxAliases = {

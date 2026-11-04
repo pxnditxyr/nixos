@@ -1,11 +1,5 @@
-# neopanda 🐼 Neovim config. Installs npd/neopanda from the GitHub flake and
-# symlinks ~/.config/neopanda to the clone (vim.pack writes its lockfile there).
-{ inputs, config, ... }:
+# neopanda 🐼 Neovim config. The package carries the config and its tools; plugins install on the first `npd`.
+{ inputs, pkgs, ... }:
 {
-  imports = [ inputs.neopanda.homeModules.default ];
-
-  programs.neopanda = {
-    enable = true;
-    configPath = "${config.home.homeDirectory}/dev/neopanda";
-  };
+  home.packages = [ inputs.neopanda.packages.${pkgs.stdenv.hostPlatform.system}.default ];
 }
