@@ -18,7 +18,6 @@ let
     ls = "eza --icons --group-directories-first";
 
     confnix = "cd ~/.config/nixos";
-    confvim = "cd ~/workspace/neocats";
 
     cat  = "bat --style=auto";
     find = "fd";
@@ -31,7 +30,6 @@ let
     oo   = copyChar "ó";
     uu   = copyChar "ú";
     v    = "npd";
-    vdev = "NEOPANDA_CONFIG=~/dev/neopanda npd"; # neopanda from the clone, to edit it live
   };
 
   linuxAliases = {
