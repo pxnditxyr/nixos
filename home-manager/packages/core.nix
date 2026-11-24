@@ -1,6 +1,4 @@
-# packages/core.nix — foundational shell utilities every host needs.
-# Network tools, archive tools, build essentials. Strictly OS-pure: anything
-# that only builds (or only makes sense) on Linux lives in core-linux.nix.
+# Linux-only tools go in core-linux.nix.
 { pkgs, ... }: {
   home.packages = with pkgs; [
     wget

@@ -1,12 +1,4 @@
-# shell-integrations.nix — first-class HM modules for CLI tools that need
-# both a binary AND a shell hook (eval / completion). Shared by every host.
-#
-# Why this is its own module:
-#   home.packages = [ pkgs.zoxide ] only installs the binary. The 'z' command
-#   is a shell function defined by `zoxide init <shell>`. HM's program modules
-#   handle BOTH halves — binary + the eval line into ~/.bashrc / ~/.zshrc —
-#   so we centralise them here and remove the corresponding entries from
-#   packages/cli-modern.nix to avoid duplicate installs.
+# Tools that need a binary plus a shell hook; don't also list them in home.packages.
 { pkgs, ... }: {
   programs.zoxide = {
     enable = true;
@@ -36,12 +28,7 @@
     git = true;
   };
 
-  # Prompt — replaces the hand-written zsh PROMPT functions, which ran
-  # `git status` + `git rev-list` synchronously on every prompt. Starship
-  # is a single Rust binary with per-module timeouts; this config
-  # reproduces the old 🐼 layout and colours.
-  # Trade-off: Starship has one "staged" counter instead of separate
-  # staged added/changed/deleted counts.
+  # 🐼 Pxndxs prompt — panda layout, neon palette ❄️
   programs.starship = {
     enable = true;
     enableBashIntegration = true;

@@ -1,6 +1,4 @@
-# SSH client config — multi-account routing.
-# Identity files referenced by path; private keys NEVER tracked in Nix.
-# Generate with `ssh-keygen` (see README), then upload .pub to each provider.
+# Keys are referenced by path only; never track private keys here.
 { ... }: {
   programs.ssh = {
     enable = true;
@@ -8,9 +6,6 @@
 
     includes = [ "~/.ssh/config.local" ];
 
-    # Modern HM SSH API: programs.ssh.settings (DAG keyed by Host pattern,
-    # capitalized OpenSSH directive names). Replaces the deprecated
-    # programs.ssh.matchBlocks. Bools render as yes/no.
     settings."*" = {
       AddKeysToAgent      = "yes";
       ForwardAgent        = false;

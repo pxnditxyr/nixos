@@ -8,7 +8,6 @@ hl.config({
 
         border_size = 2,
 
-        -- Soft blue → aqua gradient for contrast.
         col = {
             active_border   = { colors = { "rgba(00a8e8ee)", "rgba(00ffaaee)" }, angle = 45 },
             inactive_border = "rgba(4a4a4aaa)",
@@ -69,7 +68,6 @@ hl.config({
         mouse_move_enables_dpms = true,
         key_press_enables_dpms  = true,
 
-        -- Snappier manual resize/drag.
         animate_manual_resizes        = false,
         animate_mouse_windowdragging  = false,
 

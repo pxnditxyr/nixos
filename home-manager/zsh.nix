@@ -37,19 +37,16 @@ let
   };
 in
 {
-  home.packages = [ pkgs.gum ]; # UI for zsh/nix-helpers.zsh (zsh itself comes from programs.zsh)
+  home.packages = [ pkgs.gum ]; # used by zsh/nix-helpers.zsh
   programs.zsh = {
     enable = true;
     enableCompletion = true;
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
-    # No oh-my-zsh framework: HM wires compinit/autosuggestions/highlighting
-    # itself. Only the omz git aliases (gst, gco, gp, …) are kept; lib/git.zsh
-    # provides the helpers they call (git_current_branch, …).
+    # Only omz's git aliases, without the framework; lib/git.zsh defines the
+    # helpers they call (git_current_branch, …).
     plugins = [
-      # lib/git.zsh registers an async prompt helper via add-zsh-hook; without
-      # the omz framework the hook isn't autoloaded, and we don't use omz's
-      # prompt anyway (starship / Warp), so turn it off.
+      # Without omz, add-zsh-hook isn't autoloaded; the async prompt is unused.
       {
         name = "omz-git-prelude";
         src = pkgs.writeTextDir "omz-git-prelude.zsh" ''
@@ -76,16 +73,15 @@ in
       size = 100000;
       save = 100000;
       path = "${config.xdg.dataHome}/zsh/history";
-      share = true;                 # live history across open shells
-      extended = true;              # timestamps + durations
+      share = true;
+      extended = true;
       ignoreAllDups = true;
       expireDuplicatesFirst = true;
-      ignoreSpace = true;           # ` cmd` stays out of history
+      ignoreSpace = true;
     };
 
     initContent = lib.mkMerge [
-      # fzf-tab must load after compinit (570) and before widget-wrapping
-      # plugins like zsh-autosuggestions (700).
+      # fzf-tab: after compinit (570), before autosuggestions (700).
       (lib.mkOrder 600 ''
         source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
         zstyle ':completion:*' menu no
@@ -93,10 +89,7 @@ in
       '')
 
       ''
-      # macOS resets /etc/zshrc on every OS update, wiping whatever shell
-      # integration the Nix installer put there. Source nix-daemon.sh
-      # directly from our own (user-owned, update-proof) .zshrc instead of
-      # depending on /etc/zshrc surviving reboots.
+      # macOS updates reset /etc/zshrc and drop the Nix installer's hook.
       if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
         . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
       fi
@@ -106,13 +99,11 @@ in
         source "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
       fi
 
-      # setting for take in account / like a word separator in delete word
+      # Treat / as a word separator for delete-word.
       WORDCHARS="";
 
-      # Nix helpers (hms, nrs, nfu, nclean, nsearch, ngen) with a gum UI.
       source ${./zsh/nix-helpers.zsh}
 
-      # fnm - Fast Node Manager
       eval "$(fnm env --use-on-cd --shell zsh)"
 
       typeset -U path
@@ -121,6 +112,11 @@ in
       done
       unset _dir
     ''
+
+      # After HM aliases (1100) so local ones win; before highlighting (1200).
+      (lib.mkOrder 1150 ''
+        [[ -r ~/.zshrc.local ]] && source ~/.zshrc.local
+      '')
     ];
   };
   home.sessionPath = [ "$HOME/.local/bin" ];

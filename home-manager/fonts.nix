@@ -1,7 +1,5 @@
 { pkgs, lib, platform, ... }: {
-  # fontconfig is a Linux/X11 concept. On darwin, HM installs fonts by
-  # symlinking into ~/Library/Fonts and macOS picks them up natively, so the
-  # fontconfig path is unnecessary. Gate enable to Linux only.
+  # macOS reads fonts from ~/Library/Fonts; fontconfig is Linux-only.
   fonts.fontconfig.enable = lib.mkDefault platform.isLinux;
 
   home.packages = with pkgs; [

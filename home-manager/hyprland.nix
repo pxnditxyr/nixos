@@ -1,12 +1,6 @@
-# Hyprland session layer: Lua config, helper scripts and the small user
-# services the config relies on. Hyprland itself comes from NixOS
-# (programs.hyprland in nixos/configuration.nix).
 { pkgs, ... }:
 let
-  # Helper scripts as real packages: writeShellApplication adds
-  # `set -euo pipefail`, runs shellcheck at build time and pins every
-  # dependency via runtimeInputs, so a missing tool fails the build instead
-  # of failing silently at keypress time.
+  # writeShellApplication: shellcheck and pinned deps fail at build, not at keypress.
   rofiCalc = pkgs.writeShellApplication {
     name = "hypr-rofi-calc";
     runtimeInputs = with pkgs; [ rofi libqalculate wl-clipboard libnotify ];
@@ -93,8 +87,7 @@ let
   };
 in
 {
-  # Tell Electron / Chromium apps to use Wayland (Ozone). Wayland-only;
-  # belongs to the Hyprland module so non-Wayland hosts don't carry it.
+  # Electron/Chromium on Wayland; here so non-Wayland hosts don't get it.
   home.sessionVariables.NIXOS_OZONE_WL = "1";
 
   home.packages = [
@@ -106,8 +99,6 @@ in
     pkgs.qt6Packages.qt6ct # QT_QPA_PLATFORMTHEME=qt6ct (hypr/modules/env.lua)
   ];
 
-  # Notifications (D-Bus activated), polkit prompts (user service, started
-  # by graphical-session.target under UWSM) and the screen locker.
   services.dunst.enable = true;
   services.hyprpolkitagent.enable = true;
   programs.hyprlock = {

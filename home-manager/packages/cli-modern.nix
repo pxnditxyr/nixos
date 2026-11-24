@@ -1,26 +1,17 @@
-# packages/cli-modern.nix — modern (mostly Rust/Go) CLI replacements
-# for the classic POSIX tools. Universally useful regardless of host.
-# Strictly OS-pure — Linux-only entries (playerctl, qalculate-qt) live in
-# cli-modern-linux.nix.
 { pkgs, config, ... }: {
-  # Tools needing only a binary go here.
-  # bat / eza / zoxide / fzf are wired up via programs.* in
-  # ../shell-integrations.nix (binary + shell hook in one), so they are
-  # intentionally NOT listed below to avoid duplicate installs.
+  # bat, eza, zoxide and fzf come from programs.* in ../shell-integrations.nix.
   home.packages = with pkgs; [
-    fd           # Better find - simple, fast, user-friendly
-    ripgrep      # Better grep - respects .gitignore, super fast
-    tldr         # Simplified man pages with practical examples
-    dust         # Better du - disk usage analyzer with tree view
-    btop         # Better top/htop - beautiful system monitor
-    procs        # Better ps - modern process viewer
-    sd           # Better sed - simpler find & replace
-    yazi         # Terminal file manager
+    fd
+    ripgrep
+    tldr
+    dust
+    btop
+    procs
+    sd
+    yazi
   ];
 
-  # nh: nixos-rebuild / home-manager wrapper with diffs (used by hms/nrs/…).
-  # HM module instead of a bare package so NH_FLAKE points at this repo.
-  # Generation cleanup stays in NixOS programs.nh.clean / `nclean`.
+  # Module rather than package so NH_FLAKE points at this repo.
   programs.nh = {
     enable = true;
     flake = "${config.home.homeDirectory}/.config/nixos";

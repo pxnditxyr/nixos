@@ -1,8 +1,4 @@
--- Hyprland config (Lua, Hyprland 0.55+; hyprland.conf is no longer read
--- since 0.56). Wiki: https://wiki.hypr.land/Configuring/Start/
---
--- Split by topic; require() resolves from ~/.config/hypr, so
--- require("modules.binds") loads ~/.config/hypr/modules/binds.lua.
+-- https://wiki.hypr.land/Configuring/Start/
 
 require("modules.env")
 require("modules.monitors")

@@ -1,18 +1,15 @@
 { pkgs, lib, config, ... }:
 let
-  # zsh shortcuts that run the git aliases below, overriding the omz git
-  # plugin's version where they differ (HM writes shellAliases after the
-  # plugins). Every other omz g* alias already does the same thing.
-  # Single source of truth: the `alias` attrset in programs.git.settings.
+  # Override omz git plugin shortcuts with the aliases below (single source).
   zshShortcuts = {
-    gst = "s";          # status -sb
-    glog = "l";         # oneline graph --all
+    gst = "s";
+    glog = "l";
     glol = "ll";
     glola = "lg";
     glast = "last";
     ghist = "history";
-    gdst = "ds";        # diff --stat (gds stays omz's diff --staged)
-    gpsf = "psf";       # push --force-with-lease
+    gdst = "ds"; # gds stays omz's diff --staged
+    gpsf = "psf";
     gundo = "undo";
     gunstage = "unstage";
     gbr = "branches";
@@ -28,11 +25,8 @@ in
 
   programs.zsh.shellAliases = lib.mapAttrs (_: alias: "git ${alias}") zshShortcuts;
 
-  # Bootstrap untracked local identity files on every switch.
-  # Idempotent: only writes a stub if the file is absent. User fills in real
-  # name/email once; subsequent switches leave the file alone.
-  # Skipped on dry runs: HM's `run` only echoes there, but a `run cat > f`
-  # redirect would still create f (with the word "cat" in it).
+  # Stub untracked identity files once. Skipped on dry runs: a redirect would
+  # still create the file even though HM's `run` only echoes.
   home.activation.gitLocalIdentityBootstrap =
     lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       ID_DIR="$HOME/.config/git/local"
@@ -65,34 +59,28 @@ in
   programs.git = {
     enable = true;
 
-
-
+    # No user.name/email: identity lives in untracked files (includes below).
     settings = {
       alias = {
-        # Status shortcuts
         s = "status -sb";
         st = "status";
 
-        # Log aliases
         lg = ''log --graph --abbrev-commit --decorate --pretty="format:%C(bold yellow)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(italic cyan)%s%C(reset) %C(cyan)- %an%C(reset)%C(bold yellow)%d%C(reset)" --all'';
         l = "log --oneline --decorate --graph --all";
         ll = "log --graph --pretty=format:'%C(yellow)%h%C(reset) - %C(cyan)%an%C(reset), %C(green)%ar%C(reset) : %s'";
         last = "log -1 HEAD --stat";
         history = "log --pretty=format:'%C(yellow)%h %C(reset)%ad %C(blue)%an%C(reset) - %s' --date=short";
 
-        # Diff aliases
         d = "diff";
         dc = "diff --cached";
         ds = "diff --stat";
         dw = "diff --word-diff";
 
-        # Branch aliases
         b = "branch";
         ba = "branch -a";
         bd = "branch -d";
-        bD = "branch -D";
+        bdf = "branch -D";
 
-        # Commit aliases
         c = "commit";
         ca = "commit -a";
         cm = "commit -m";
@@ -100,72 +88,55 @@ in
         amend = "commit --amend";
         amendf = "commit --amend --no-edit";
 
-        # Checkout aliases
         co = "checkout";
         cob = "checkout -b";
         com = "checkout main";
 
-        # Switch (modern alternative to checkout)
         sw = "switch";
         swc = "switch -c";
 
-        # Restore (modern alternative to checkout for files)
         rs = "restore";
         rss = "restore --staged";
 
-        # Stash aliases
         ss = "stash";
         sp = "stash pop";
         sl = "stash list";
         sa = "stash apply";
 
-        # Remote aliases
         r = "remote";
         rv = "remote -v";
 
-        # Pull/Push aliases
         pl = "pull";
         ps = "push";
-        psf = "push --force-with-lease";  # Safer force push
+        psf = "push --force-with-lease";
 
-        # Reset aliases
         unstage = "reset HEAD --";
         undo = "reset --soft HEAD~1";
 
-        # Other useful aliases
-        alias = "config --get-regexp ^alias\\.";  # Lista todos los aliases
+        alias = "config --get-regexp ^alias\\.";
         ignored = "ls-files --others --ignored --exclude-standard";
-        contributors = "shortlog -sn";  # Lista contributors
-        branches = "branch --sort=-committerdate";  # Lista branches por fecha
+        contributors = "shortlog -sn";
+        branches = "branch --sort=-committerdate";
         tags = "tag -l";
 
-        # Advanced aliases
         fixup = "commit --fixup";
         squash = "commit --squash";
         wip = "commit -am 'WIP' --no-verify";
         unwip = "reset HEAD~1";
 
-        # Find commits by message
         find = "log --all --oneline --grep";
 
-        # Show files in a commit
         show-files = "show --name-only";
       };
 
-      # user.name / user.email intentionally NOT set here — credentials
-      # live in untracked local files loaded via the `includes` directive
-      # below. Keeps the public Nix repo free of personal identity data.
-
       init.defaultBranch = "main";
 
-      # Core settings
       core = {
         editor = "neocats";
-        autocrlf = "input";  # Evita problemas de line endings en Linux
+        autocrlf = "input";
         whitespace = "trailing-space,space-before-tab";
       };
 
-      # Colors
       color = {
         ui = "auto";
         branch = "auto";
@@ -173,70 +144,59 @@ in
         status = "auto";
       };
 
-      # Diff settings
       diff = {
-        algorithm = "histogram";  # Mejor algoritmo de diff
-        colorMoved = "default";   # Detecta código movido
+        algorithm = "histogram";
+        colorMoved = "default";
         colorMovedWS = "allow-indentation-change";
       };
 
-      # Merge settings
       merge = {
-        conflictstyle = "zdiff3";  # Mejor visualización de conflictos
+        conflictstyle = "zdiff3";
         tool = "vimdiff";
       };
 
-      # Pull/Push settings
       pull = {
-        rebase = true;  # Usa rebase en lugar de merge por defecto
+        rebase = true;
       };
 
       push = {
         default = "current";
-        autoSetupRemote = true;  # Auto-setup remote branch on first push
+        autoSetupRemote = true;
       };
 
-      # Rebase settings
       rebase = {
-        autoStash = true;  # Auto-stash antes de rebase
-        autoSquash = true;  # Auto-squash commits con fixup!
+        autoStash = true;
+        autoSquash = true;
       };
 
-      # Status settings
       status = {
         showUntrackedFiles = "all";
         submoduleSummary = true;
       };
 
-      # Branch settings
       branch = {
-        sort = "-committerdate";  # Ordena branches por fecha
+        sort = "-committerdate";
       };
 
-      # Fetch settings
       fetch = {
-        prune = true;  # Auto-limpia remote branches eliminadas
+        prune = true;
         pruneTags = true;
       };
 
-      # Log settings
       log = {
         date = "relative";
         abbrevCommit = true;
       };
 
-      # Blame settings
       blame = {
         date = "relative";
         coloring = "repeatedLines";
       };
 
-      # Help settings
       help = {
         autocorrect = 10;
       };
 
-      # Performance
       feature = {
         manyFiles = true;
       };
@@ -251,11 +211,9 @@ in
     ];
 
     ignores = [
-      # OS files
       ".DS_Store"
       "Thumbs.db"
 
-      # Editor files
       ".vscode/"
       ".idea/"
       "*.swp"
@@ -263,31 +221,28 @@ in
       "*~"
       ".vim/"
 
-      # Build outputs
       "dist/"
       "build/"
       "*.log"
 
-      # Dependencies
       "node_modules/"
       ".env"
       ".env.local"
 
-      # Nix
+      # nix build symlinks
       "result"
       "result-*"
     ];
   };
 
-  # Delta - syntax highlighting pager for git diffs
   programs.delta = {
     enable = true;
-    enableGitIntegration = true;  # Integración explícita con git
+    enableGitIntegration = true;
 
     options = {
       navigate = true;
       line-numbers = true;
-      side-by-side = true;  # Vista lado a lado (izquierda=antes, derecha=después)
+      side-by-side = true;
       syntax-theme = "OneHalfDark";
 
       features = "decorations";

@@ -33,7 +33,6 @@ let
       DimBackground = "0.25";
       DimBackgroundColor = "#0b0b12";
 
-      # Frosted glass card.
       PartialBlur = "true";
       HaveFormBackground = "true";
       FormPosition = "center";
@@ -70,7 +69,6 @@ let
       HoverSessionButtonTextColor = accentHover;
       HoverVirtualKeyboardButtonTextColor = accentHover;
 
-      # Behavior.
       ForceLastUser = "true";
       PasswordFocus = "true";
       UseRealName = "true";

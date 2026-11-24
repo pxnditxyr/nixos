@@ -2,23 +2,19 @@
   description = "Pxndxs Configuration";
 
   inputs = {
-    # Nixpkgs
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    # Home manager — tracks master to match nixos-unstable nixpkgs
+    # master to match nixos-unstable.
     home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Hyprland comes from nixpkgs (programs.hyprland), no flake input needed.
-
-    # NeoCats Pxndxs 🐼 my neovim configuration. Keeps its own nixpkgs: with
-    # `inputs.nixpkgs.follows` its formatter (nixfmt-classic, removed from
-    # current nixpkgs) fails to evaluate. Revisit once neocats switches to nixfmt.
+    # 🐼 NeoCats — Pxndxs' own Neovim distribution ❄️
+    # No nixpkgs.follows: its nixfmt-classic formatter is gone from current nixpkgs.
     neocats.url = "github:pxnditxyr/neocats";
 
-    # neopanda 🐼 Neovim config.
+    # 🐼 neopanda — my Neovim config, packaged and ready to `npd` ❄️
     neopanda.url = "github:pxnditxyr/neopanda";
   };
 
@@ -34,12 +30,10 @@
     overlay = import ./overlays/default.nix;
   in {
     overlays = {
-      default = overlay; # injects pkgs.warp-terminal (local build, newer than nixpkgs)
+      default = overlay; # pkgs.warp-terminal, newer than nixpkgs
     };
 
-    # Custom packages (brave-nightly, warp-terminal) are Linux-only.
-    # lib.optionalAttrs keeps the output attrset empty on darwin so
-    # `nix flake check` skips them.
+    # Linux-only; empty on darwin so `nix flake check` skips them.
     packages = forAllSystems (system: let
       pkgs = import nixpkgs {
         inherit system;
@@ -54,10 +48,8 @@
       default = bravePkg;
     }));
 
-    # `nix fmt`
     formatter = forAllSystems (system: (pkgsFor system).nixfmt);
 
-    # `nix develop`: Nix LSP + formatter + linters for editing this repo.
     devShells = forAllSystems (system: let
       pkgs = pkgsFor system;
     in {
@@ -66,8 +58,7 @@
       };
     });
 
-    # `nix flake check` builds every home-manager profile of this system
-    # (the NixOS one evaluates via nixosConfigurations).
+    # `nix flake check` builds every home-manager profile of this system.
     checks = forAllSystems (system:
       nixpkgs.lib.mapAttrs' (name: cfg:
         nixpkgs.lib.nameValuePair "home-${builtins.replaceStrings [ "@" ] [ "-" ] name}" cfg.activationPackage)
@@ -89,43 +80,26 @@
       else {}
     );
 
-    # NixOS configuration entrypoint
-    # Available through 'nixos-rebuild --flake .#your-hostname'
     nixosConfigurations = {
       pxndxs = nixpkgs.lib.nixosSystem {
         specialArgs = {inherit inputs;};
-        # > Our main nixos configuration file <
         modules = [./nixos/configuration.nix];
       };
     };
 
-    # Standalone home-manager configuration entrypoint
-    # Available through 'home-manager --flake .#your-username@your-hostname'
     homeConfigurations = {
-      # Canonical NixOS profile (Hyprland/Wayland desktop)
       "pxndxs@pxndxs" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = {inherit inputs;};
-        # > Our main home-manager configuration file <
         modules = [./home-manager/home.nix];
       };
 
-      # Ubuntu/X11/macOS-themed layer — runs the same module ecosystem
-      # MINUS the Wayland-only modules (hyprland, waybar) and rofi
-      # (kept outside Nix to preserve the WhiteSur Spotlight setup).
-      # Apply: home-manager switch --flake .#pxndxs@ubuntu-mac
       "pxndxs@ubuntu-mac" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = {inherit inputs;};
         modules = [./hosts/ubuntu-mac/home.nix];
       };
 
-      # Headless / terminal-only macOS profiles (Apple Silicon).
-      # CLI tooling only — no GUI apps, no Wayland/X11 modules, no Brave.
-      # Identity is injected per profile via extraSpecialArgs.username; the
-      # shared ./hosts/mac/home.nix module and ./home-manager/platform.nix
-      # derive home.username + home.homeDirectory from it.
-      # Apply: home-manager switch --flake .#<username>@mac -b backup
       "pxndxs@mac" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.aarch64-darwin;
         extraSpecialArgs = {
